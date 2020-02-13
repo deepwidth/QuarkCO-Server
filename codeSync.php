@@ -6,19 +6,15 @@ class CodeSync {
 	private static $instance = null;
 
 	//classMap is used to save all classes to be synced;
-	private $classMap;
+	private $classMap = array();
 
 	private function __construct() {}
 
 	private function __clone() {}
 
-	public static function getInstance($object) {
+	public static function getInstance() {
 		if(self::$instance == null) {
 			$instance = new self();
-			$classMap = array();
-			foreach($object as  $key => $value) {
-				$classMap[$this->classNameFormat($key)] = $value;
-			}
 		}
 		return $instance;
 	}
@@ -27,6 +23,11 @@ class CodeSync {
 		if($char >= 'a' && $char <= 'z') {
 			return true;
 		}
+		
+		if($char >= 'A' && $char <= 'Z') {
+			return true;
+		}
+		
 		if($char >= '0' && $char <= '9') {
 			return true;
 		}
@@ -56,7 +57,6 @@ class CodeSync {
 
 	//将post请求中类的文件名转换为路径格式
 	private function classNameFormat($oldName) {
-		$oldName = strToLower($oldName);
 		 if(!$this->isCorrectPackagePath($oldName)) {
 			return false;
 		 }
@@ -64,22 +64,26 @@ class CodeSync {
 	}
 	//写文件
 	private function writeFile($filePath) {
-		$fileToWrite = fread($filePath, "w");
-		fwrite($fileToWrite, $classMap[$filePath]);
+		$fileToWrite = fopen($filePath, "w");
+		fwrite($fileToWrite, $this->classMap[$filePath]);
+		fclose($fileToWrite);
 	}
-	//创建文件
+	//创建路径和文件
 	private function createFile($filePath) {
-		$dirPath = substr($filePath, 0, strpos($filePath, '/'));
+		$dirPath = substr($filePath, 0, strrpos($filePath, '/'));
 		if(!is_dir($dirPath)){
-			mkdir($dirPath, 0666, true);
+			mkdir($dirPath, 0777, true);
 		}
 		touch($filePath);
 		$this->writeFile($filePath);
 	}
 
-	public function sync() {
-		foreach($this->$classMap as $classPath => $classContent) {
-			$this->createFile($classMap[$classPath]);
+	public function sync($object) {
+		foreach($object as  $key => $value) {
+				$this->classMap[$this->classNameFormat(__CLASSES_ROOT_DIR__.$key.".java")] = $value;
+		}
+		foreach($this->classMap as $classPath => $classContent) {
+			$this->createFile($classPath);
 		}
 		return true;
 	}
