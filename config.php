@@ -2,9 +2,9 @@
 
 /**
  * QuarkCO (Quark Computing Offloading)
- * Date:2020/2/13
- * Author:Zhang Kangkang
- * website:
+ * Date: 2020.2.13
+ * Author: Zhang Kangkang
+ * Website: https://zkk.me
 */
 
 /**

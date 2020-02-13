@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * codeSync.php
+ * Date: 2020.2.13
+ * Author: Zhang Kangkang
+ * Website: https://zkk.me
+ */
 
 class CodeSync {
 
