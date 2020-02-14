@@ -8,8 +8,9 @@
  */
  
 require_once "config.php";
-$post = @$_POST['param'];
-$param = json_decode($post);
+
+$param = json_decode(@$_POST['param']);
+
 $syncedClasses = CodeSync::getInstance();
 $syncedClasses->sync($param);
 ?>

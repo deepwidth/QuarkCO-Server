@@ -13,7 +13,9 @@ class CodeSync {
 
 	//classMap is used to save all classes to be synced;
 	private $classMap = array();
-
+	
+	private $syncResult = array();
+	
 	private function __construct() {}
 
 	private function __clone() {}
@@ -71,8 +73,11 @@ class CodeSync {
 	//写文件
 	private function writeFile($filePath) {
 		$fileToWrite = fopen($filePath, "w");
-		fwrite($fileToWrite, $this->classMap[$filePath]);
+		if(false == fwrite($fileToWrite, $this->classMap[$filePath])) {
+			return false;
+		}
 		fclose($fileToWrite);
+		return true;
 	}
 	//创建路径和文件
 	private function createFile($filePath) {
@@ -80,16 +85,16 @@ class CodeSync {
 		if(!is_dir($dirPath)){
 			mkdir($dirPath, 0777, true);
 		}
-		touch($filePath);
-		$this->writeFile($filePath);
+		touch($filePath);	//创建文件
+		return $this->writeFile($filePath);	//写入文件，并返回写入结果
 	}
-
+	//建立 Java 代码文件
 	public function sync($object) {
-		foreach($object as  $key => $value) {
-				$this->classMap[$this->classNameFormat(__CLASSES_ROOT_DIR__.$key.".java")] = $value;
+		foreach($object as  $oldFileName => $fileContent) {
+				$this->classMap[$this->classNameFormat(__CLASSES_ROOT_DIR__.$oldFileName.".java")] = $fileContent;	//更改classMap索引格式
 		}
-		foreach($this->classMap as $classPath => $classContent) {
-			$this->createFile($classPath);
+		foreach($this->classMap as $filePath => $fileContent) {
+			$this->syncResult[$filePath] = $this->createFile($filePath);	//记录各个代码同步结果
 		}
 		return true;
 	}
