@@ -9,8 +9,24 @@
  
 require_once "config.php";
 
-$param = json_decode(@$_POST['param']);
+class Sync {
+
+	public function getPost() {
+		if(@$_POST['quarkco']) {
+			return json_decode(@$_POST['quarkco']);
+		} else {
+			echo "1001";
+			exit();
+		}
+	}
+
+}
+
+$sync = new Sync();
+$codes = $sync->getPost();
 
 $syncedClasses = CodeSync::getInstance();
-$syncedClasses->sync($param);
+$syncedClasses->sync($codes);
+
+
 ?>

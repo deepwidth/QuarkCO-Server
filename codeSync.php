@@ -27,6 +27,10 @@ class CodeSync {
 		return $instance;
 	}
 	
+	public function getSyncResult() {
+		return $this->syncResult;
+	}
+
 	private function isCorrectSymbol($char) {
 		if($char >= 'a' && $char <= 'z') {
 			return true;
@@ -91,12 +95,13 @@ class CodeSync {
 	//建立 Java 代码文件
 	public function sync($object) {
 		foreach($object as  $oldFileName => $fileContent) {
-				$this->classMap[$this->classNameFormat(__CLASSES_ROOT_DIR__.$oldFileName.".java")] = $fileContent;	//更改classMap索引格式
+			$this->classMap[$this->classNameFormat(__CLASSES_ROOT_DIR__.$oldFileName.".java")] = $fileContent;	//更改classMap索引格式
 		}
 		foreach($this->classMap as $filePath => $fileContent) {
-			$this->syncResult[$filePath] = $this->createFile($filePath);	//记录各个代码同步结果
+			if($this->createFile($filePath)) {
+				array_push($this->syncResult, $filePath);	//记录成功同步的文件
+			}
 		}
-		return true;
 	}
 }
 ?>

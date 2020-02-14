@@ -11,6 +11,8 @@ class PortManager {
 	
 	private static $instance = null;
 
+	private $communicatePort = 2200;
+
 	//最小端口是部署模块绑定服务的起始搜索端口
 	private $miniPort = 2201;
 
@@ -24,11 +26,19 @@ class PortManager {
 
 	private function __clone() {}
 
-	public function  getInstance() {
+	public static function  getInstance() {
 		if(self::$instance == null) {
 			self::$instance = new self();
 		}
 		return self::$instance;
+	}
+
+	public function setCommunicatePort($port) {
+		$this->communicatePort = $port;
+	}
+
+	public function getCommunicatePort() {
+		return $this->communicatePort;
 	}
 
 	public function setMiniPort($port) {
