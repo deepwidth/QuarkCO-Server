@@ -20,21 +20,27 @@ define('__CLASSES_ROOT_DIR__', 'QuarkCO/');
 @set_include_path(get_include_path() . PATH_SEPARATOR .
 __QUARKCO_ROOT_DIR__ . '/var');
 
+//代码同步模块
 require_once "codeSync.php";
 
+//端口管理模块
 require_once "portManager.php";
 
+//其他模块向管理模块通信功能
 require_once "communicateToServer.php";
 
 //===============个性化服务设置==================
 
 //模块间通信端口,更改此项设置后重启管理模块(serverManager.php)生效
+//默认为2200
 $communicatePort = 2200;
 
 //请在这里设置 QuarkCO 服务集所能使用端口范围的最小值
+//默认为2201
 $startPort = 2201;
 
 //请在这里设置 QuarkCO 服务集所能使用端口范围的最大值
+//默认为65535
 $endPort = 65535;
 
 /**
