@@ -7,6 +7,11 @@
  * Website: https://zkk.me
  */
 
+ /**
+  * 同步代码的模块，主要任务是根据接收的 post 内容
+  * 将 Java 代码正确地存放在服务器端
+  */
+ 
 class CodeSync {
 
 	private static $instance = null;
@@ -95,7 +100,7 @@ class CodeSync {
 	//建立 Java 代码文件
 	public function sync($object) {
 		foreach($object as  $oldFileName => $fileContent) {
-			$this->classMap[$this->classNameFormat(__CLASSES_ROOT_DIR__.$oldFileName.".java")] = $fileContent;	//更改classMap索引格式
+			$this->classMap[__CLASSES_ROOT_DIR__.$this->classNameFormat($oldFileName).".java"] = $fileContent;	//更改classMap索引格式
 		}
 		foreach($this->classMap as $filePath => $fileContent) {
 			if($this->createFile($filePath)) {

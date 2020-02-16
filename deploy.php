@@ -7,6 +7,11 @@
  * Website: https://zkk.me
  */
 
+ /**
+  * 为每一个 Java 类选择一个可用端口，
+  * 并生成绑定服务的 Java 代码
+  */
+ 
 class Deploy {
 	
 	private static $instance = null;
