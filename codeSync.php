@@ -56,16 +56,18 @@ class CodeSync {
 
 	//判断包的路径是否是正确格式
 	private function isCorrectPackagePath($path) {
-		for($i = 0; $i < strlen($path); $i = $j + 1) {
+		for($i = 0, $j = $i; $i < strlen($path); $i = $j + 1) {
 			if($path["$i"] == '_') {	//防止第一个字符为'_'或连续出现两个及以上'_'
 				break;
 			}
-			for($j = $i; $path["$j"] != '_'; ++$j) {
+			for(; $path["$j"] != '_'; ++$j) {
 				if(strlen($path) == $j) {
 					return true;
 				}
 				if($this->isCorrectSymbol($path["$j"])) {
 					continue;
+				} else {
+					return false;
 				}
 			}
 		}
