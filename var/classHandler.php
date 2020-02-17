@@ -21,6 +21,9 @@ class ClassHandler {
 	private $interfaceClass;	//是否是声明类
 	private $implementClassHandler;	//其声明类
 	
+	private $compiled;	//是否已经编译
+	private $compileNeedClasses = array();	//编译此java类所需要的java类
+	
 	public function getClassFullName() {
 		return $this->classFullName;
 	}
@@ -45,7 +48,7 @@ class ClassHandler {
 		return $this->classContent;
 	}
 	
-	public function setInterface($interfaceClass) {
+	private function setInterface($interfaceClass) {
 		$this->interfaceClass = $interfaceClass;
 	}
 	
@@ -53,12 +56,34 @@ class ClassHandler {
 		return $this->interfaceClass;
 	}
 	
-	public function setImplementClassHandler($implementClassHandler) {
+	private function setImplementClassHandler($implementClassHandler) {
 		$this->implementClassHandler = $implementClassHandler;
 	}
 	
 	public function getImplementClassHandler() {
 		return $this->implementClassHandler;
+	}
+	//设置是否已编译
+	public function setCompiled($compiled) {
+		$this->compiled = $compiled;
+	}
+	//是否可以进行编译
+	public function canCompile() {
+		foreach($this->compileNeedClasses as $key => $classHandler) {
+			if(!$classHandler->isCompiled()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	//是否已经编译
+	public function isCompiled() {
+		return $this->compiled;
+	}
+	
+	public function analyzeClassInformation() {
+		$this->setInterface();
+		$this->setImplementClassHandler();
 	}
 }
  

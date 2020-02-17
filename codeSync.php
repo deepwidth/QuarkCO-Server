@@ -97,6 +97,16 @@ class CodeSync {
 		touch($filePath);	//创建文件
 		return $this->writeFile($filePath);	//写入文件，并返回写入结果
 	}
+	
+	//创建 Java 类处理类
+	private function createClassHandler($filePath) {
+		$classHandler = new ClassHandler();
+		$classHandler->setClassFilePath($filePath);
+		$classHandler->setClassFullName(substr($filePath, strlen(__CLASSES_ROOT_DIR__), strrpos($filePath, '.')));
+		$classHandler->setClassContent($this->classMap[$filePath]);
+		$classHandler->analyzeClassInformation();
+		return $classHandler;
+	}
 	//建立 Java 代码文件
 	public function sync($object) {
 		foreach($object as  $oldFileName => $fileContent) {
@@ -104,7 +114,7 @@ class CodeSync {
 		}
 		foreach($this->classMap as $filePath => $fileContent) {
 			if($this->createFile($filePath)) {
-				array_push($this->syncResult, $filePath);	//记录成功同步的文件
+				array_push($this->syncResult, $this->createClassHandler($filePath));	//记录成功同步的文件
 			}
 		}
 	}
