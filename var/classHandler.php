@@ -81,7 +81,32 @@ class ClassHandler {
 		return $this->compiled;
 	}
 	
+	private function getNextWord($string, $index) {
+		while($string[$index] != ' ') {
+			++$index;
+		}
+		while($string[$index] == ' ' || $string[$index] == '\n') {
+			++$index;
+		}
+		$indexB = 0;
+		while($string[$index] != ' ' || $string[$index] != '\n') {
+			
+		}
+	}
+	
 	public function analyzeClassInformation() {
+		$classContent = $this->getClasContent();
+		for($i = 0; $i < strlen($classContent); ++i) {
+			if($classContent[$i] == '/' && $classContent[1+$i] == '/') {
+				while($classContent[$i] != '\n') {
+					++$i;
+				}
+			} else if($classContent[$i] == '/' && $classContent[1+$i] == '*') {
+				while(!($classContent[$i] == '*' && $classContent[1+$i] == '/')) {
+					++$i;
+				}
+			}
+		}
 		$this->setInterface();
 		$this->setImplementClassHandler();
 	}
