@@ -1,0 +1,28 @@
+import net.sf.lipermi.exception.LipeRMIException;
+import net.sf.lipermi.handler.CallHandler;
+import net.sf.lipermi.net.Server;
+import java.io.IOException;
+
+?IMPORTCLASSES?
+
+public class ?DEPLOYFILENAME? {
+
+    public static void main(String[] args) {
+        CallHandler callHandler = new CallHandler();
+        ?INTERFACECLASS? exampleService;
+	    exampleService = new ?IMPLEMENTCLASS?();
+        try {
+            callHandler.registerGlobal(ExampleService.class, exampleService);
+        } catch(LipeRMIException e) {
+            e.printStackTrace();
+        }
+        Server server = new Server();
+        int thePortIWantToBind = ?PORT?;
+
+        try {
+            server.bind(thePortIWantToBind, callHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

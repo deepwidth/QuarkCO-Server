@@ -9,7 +9,7 @@
 
 require_once "config.php";
 
-class CommunicateToManager {
+class CommunicateToServer {
 	private $ip = "127.0.0.1";
 	private $port;
 	private $socket;

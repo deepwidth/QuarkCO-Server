@@ -81,6 +81,11 @@ class CodeSync {
 		 }
 		 return str_replace('_', '/', $oldName);
 	}
+
+	private function classNameInDotFormat($filePath) {
+		$inDotFormat = str_replace('/', '.', $filePath);
+		return substr($inDotFormat, strpos($inDotFormat, '.', 1), strrpos($inDotFormat, '.', -1));
+	}
 	//写文件
 	private function writeFile($filePath) {
 		$fileToWrite = fopen($filePath, "w");
@@ -106,7 +111,7 @@ class CodeSync {
 		$classHandler->setClassFilePath($filePath);
 		$classHandler->setClassFullName(substr($filePath, strlen(__CLASSES_ROOT_DIR__), strrpos($filePath, '.')));
 		$classHandler->setClassContent($this->classMap[$filePath]);
-		$classHandler->analyzeClassInformation();
+		$classHandler->analyzeClassContent();
 		return $classHandler;
 	}
 	//建立 Java 代码文件
@@ -116,7 +121,7 @@ class CodeSync {
 		}
 		foreach($this->classMap as $filePath => $fileContent) {
 			if($this->createFile($filePath)) {
-				array_push($this->syncResult, $this->createClassHandler($filePath));	//记录成功同步的文件
+				$this->syncResult[$this->classNameInDotFormat($filePath)] = $this->createClassHandler($filePath);	//记录成功同步的文件
 			}
 		}
 	}

@@ -28,5 +28,5 @@ $codes = $sync->getPost();
 $syncedClasses = CodeSync::getInstance();
 $syncedClasses->sync($codes);
 
-
+include "deploy.php";
 ?>
