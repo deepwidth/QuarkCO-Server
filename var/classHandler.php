@@ -20,8 +20,9 @@ class ClassHandler {
 	private $classFilePath;	//文件路径
 	private $classContent;	//类代码内容
 	private $classWords = array();	//类代码内容词汇数组
+	private $classPackage;	//类所在的包
 
-	private $isInterface;	//是否是接口类
+	private $isInterface = false;	//是否是接口类
 	private $interfaceClass = null;	//其接口类
 	private $implementClassHandler = array();	//其实现类
 
@@ -40,7 +41,8 @@ class ClassHandler {
 	
 	public function setClassFullName($classFullName) {
 		$this->className =
-		substr($classFullName, strrpos($classFullName, '.'), strlen($classFullName) - 1);
+		substr($classFullName, strrpos($classFullName, '.') + 1);
+		$this->classPackage = substr($classFullName, 0, strrpos($classFullName, '.'));
 		$this->classFullName = $classFullName;
 	}
 	
@@ -104,11 +106,9 @@ class ClassHandler {
 			array_push($this->classWords, $getted);
             $word = array();
 		}
-		$this->setImportedClasses();
-		$this->analyzeClassWords();
 	}
 
-	private function setImportedClasses() {
+	public function setImportedClasses() {
 		$syncResult = CodeSync::getInstance()->getSyncResult();
 		for($index = 0; $index <= count($this->classWords); ++$index) {
 			if($this->classWords[$index] == "import") {
@@ -116,7 +116,10 @@ class ClassHandler {
 				$classFullName = $this->classWords[$index];
 				if(array_key_exists($classFullName, $syncResult)) {
 					$this->importedClasses[$syncResult[$classFullName]->getClassName()] = $syncResult[$classFullName];
-				}
+				} 
+			} else if($this->classWords[$index] == "implements") {
+				++$index;
+				$this->importedClasses[$this->classWords[$index]] = $syncResult[$this->classPackage . "." . $this->classWords[$index]];
 			}
 		}
 	}
@@ -126,10 +129,15 @@ class ClassHandler {
 		for($index = 0; $index <= count($this->classWords); ++$index) {
 			if($this->classWords[$index] == "implements") {
 				++$index;
-				if(array_key_exists($this->importedClasses, $this->classWords[$index])) {
+				if(array_key_exists($this->classWords[$index], $this->importedClasses)) {
 					array_push($this->importedClasses[$this->classWords[$index]]->implementClassHandler, $this);
 				}
 				$this->interfaceClass = $this->importedClasses[$this->classWords[$index]];
+			}
+
+			if($this->classWords[$index] == "interface") {
+				++$index;
+				$this->isInterface = true;
 			}
 			//其他关键词为后续完善工作
 			// if($this->classWords[$index] == "extents") {

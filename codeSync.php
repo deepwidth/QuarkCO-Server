@@ -27,9 +27,9 @@ class CodeSync {
 
 	public static function getInstance() {
 		if(self::$instance == null) {
-			$instance = new self();
+			self::$instance = new self();
 		}
-		return $instance;
+		return self::$instance;
 	}
 	
 	public function getSyncResult() {
@@ -57,14 +57,14 @@ class CodeSync {
 	//判断包的路径是否是正确格式
 	private function isCorrectPackagePath($path) {
 		for($i = 0, $j = $i; $i < strlen($path); $i = $j + 1) {
-			if($path["$i"] == '_') {	//防止第一个字符为'_'或连续出现两个及以上'_'
+			if($path[$i] == '_') {	//防止第一个字符为'_'或连续出现两个及以上'_'
 				break;
 			}
-			for(; $path["$j"] != '_'; ++$j) {
+			for($j = $i; $path[$j] != '_'; ++$j) {
 				if(strlen($path) == $j) {
 					return true;
 				}
-				if($this->isCorrectSymbol($path["$j"])) {
+				if($this->isCorrectSymbol($path[$j])) {
 					continue;
 				} else {
 					return false;
@@ -84,7 +84,8 @@ class CodeSync {
 
 	private function classNameInDotFormat($filePath) {
 		$inDotFormat = str_replace('/', '.', $filePath);
-		return substr($inDotFormat, strpos($inDotFormat, '.', 1), strrpos($inDotFormat, '.', -1));
+		$inDotFormat = substr($inDotFormat, 0, strrpos($inDotFormat, '.'));
+		return substr($inDotFormat, strpos($inDotFormat, '.') + 1);
 	}
 	//写文件
 	private function writeFile($filePath) {
@@ -109,20 +110,24 @@ class CodeSync {
 	private function createClassHandler($filePath) {
 		$classHandler = new ClassHandler();
 		$classHandler->setClassFilePath($filePath);
-		$classHandler->setClassFullName(substr($filePath, strlen(__CLASSES_ROOT_DIR__), strrpos($filePath, '.')));
+		$classHandler->setClassFullName($this->classNameInDotFormat($filePath));
 		$classHandler->setClassContent($this->classMap[$filePath]);
 		$classHandler->analyzeClassContent();
 		return $classHandler;
 	}
 	//建立 Java 代码文件
 	public function sync($object) {
-		foreach($object as  $oldFileName => $fileContent) {
+		foreach($object as $oldFileName => $fileContent) {
 			$this->classMap[__CLASSES_ROOT_DIR__.$this->classNameFormat($oldFileName).".java"] = $fileContent;	//更改classMap索引格式
 		}
 		foreach($this->classMap as $filePath => $fileContent) {
 			if($this->createFile($filePath)) {
 				$this->syncResult[$this->classNameInDotFormat($filePath)] = $this->createClassHandler($filePath);	//记录成功同步的文件
 			}
+		}
+		foreach($this->syncResult as $classFullName => $classHandler) {
+			$classHandler->setImportedClasses();
+			$classHandler->analyzeClassWords();
 		}
 	}
 }

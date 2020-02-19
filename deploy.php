@@ -17,47 +17,46 @@ require_once "config.php";
 class Deploy {
 	
 	private static $instance = null;
-	private static $deployClasses = array();
+	private $deployClasses = array();
 	private $deployResult = array();
-	private static $importCode = "";	//部署代码的导包代码
+	private $importCode = "";	//部署代码的导包代码
 
 	private function __construct() {}
 
 	private function __clone() {}
 
-	public static function getInstance($syncResult) {
+	public static function getInstance() {
 		if(self::$instance == null) {
 			self::$instance = new self();
-			self::$deployClasses = $syncResult;
-			foreach(self::$deployClasses as $classFullName => $classHandler) {
-				self::$importCode = self::$importCode . "\nimport $classFullName;";
-			}
 		}
 		return self::$instance;
 	}
 
 	private function sendMessageToServer($string) {
 		$communicate = new CommunicateToServer();
-		$communicate->sendMessage($string);
+		return $communicate->sendMessage($string);
 	}
 
 	private function writeDeployCode($classHandler , $implementClassHandler) {
-		$className = $classHandler->getClassName() . "-" . $implementClassHandler->getClassName();
+		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = "tmp/" . $className . ".java";
 		$port = PortManager::getInstance()->findAvailablePort();
 		$readDeployCodeFile = fopen("var/deployCode.txt", "r");
 		$deployCode = fread($readDeployCodeFile, 8000);
 		fclose($readDeployCodeFile);
-		$deployCode = str_replace('?IMPORTCLASSES?', self::$importCode, $deployCode);
+		$deployCode = str_replace('?IMPORTCLASSES?', $this->importCode, $deployCode);
 		$deployCode = str_replace('?DEPLOYFILENAME?', $className, $deployCode);
 		$deployCode = str_replace('?INTERFACECLASS?', $classHandler->getClassName(), $deployCode);
 		$deployCode = str_replace('?IMPLEMENTCLASS?', $implementClassHandler->getClassName(), $deployCode);
 		$deployCode = str_replace('?PORT?', $port, $deployCode);
+		if(!is_dir("tmp")) {
+			mkdir("tmp", 0777, true);
+		}
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
 		shell_exec("javac tmp/$className.java");
-		$this->sendMessageToServer("java $className");
+		echo $this->sendMessageToServer("java#java $className");
 	}
 
 	public function deployCode() {
@@ -70,6 +69,16 @@ class Deploy {
 			} else if($classHandler->getInterfaceClass() == null){
 				$this->writeDeployCode($classHandler, $classHandler);
 			}
+		}
+	}
+
+	public function setDeployClasses($syncResult) {
+		$this->deployClasses = $syncResult;
+	}
+
+	public function setImportCode() {
+		foreach($this->deployClasses as $classFullName => $classHandler) {
+			$this->importCode = $this->importCode . "\nimport $classFullName;";
 		}
 	}
 
@@ -86,8 +95,8 @@ class Deploy {
 	}
 
 }
-
-$deployModule = Deploy::getInstance(CodeSync::getInstance()->getSyncResult());
+$deployModule = Deploy::getInstance();
+$deployModule->setDeployClasses(CodeSync::getInstance()->getSyncResult());
+$deployModule->setImportCode();
 $deployModule->deployCode();
-
 ?>

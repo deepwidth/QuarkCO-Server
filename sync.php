@@ -21,10 +21,9 @@ class Sync {
 	}
 
 }
-
+echo '<pre>';
 $sync = new Sync();
 $codes = $sync->getPost();
-
 $syncedClasses = CodeSync::getInstance();
 $syncedClasses->sync($codes);
 

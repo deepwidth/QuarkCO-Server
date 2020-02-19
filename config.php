@@ -29,6 +29,9 @@ require_once "portManager.php";
 //其他模块向管理模块通信功能
 require_once "communicateToServer.php";
 
+//Java类处理类
+require_once "classHandler.php";
+
 //===============个性化服务设置==================
 
 //模块间通信端口,更改此项设置后重启管理模块(serverManager.php)生效

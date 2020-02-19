@@ -12,7 +12,7 @@ public class ?DEPLOYFILENAME? {
         ?INTERFACECLASS? exampleService;
 	    exampleService = new ?IMPLEMENTCLASS?();
         try {
-            callHandler.registerGlobal(ExampleService.class, exampleService);
+            callHandler.registerGlobal(?INTERFACECLASS?.class, exampleService);
         } catch(LipeRMIException e) {
             e.printStackTrace();
         }
