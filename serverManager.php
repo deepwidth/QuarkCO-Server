@@ -7,51 +7,132 @@
 
 require_once "config.php";
 
-/* 允许脚本挂起等待连接。 */
-set_time_limit (0);
-
-/* 打开绝对隐式输出刷新 */
-ob_implicit_flush();
-
-$address = '127.0.0.1';
-$port = PortManager::getInstance()->getCommunicatePort();
-
-/* 产生一个socket，相当于产生一个socket的数据结构 */
-if (($sock = socket_create ( AF_INET, SOCK_STREAM, SOL_TCP )) === false) {
-    echo "socket_create() 失败的原因是: " . socket_strerror ( socket_last_error () ) . "\n";
-}
-
-/* 把socket绑定在一个IP地址和端口上 */
-if (socket_bind ( $sock, $address, $port ) === false) {
-    echo "socket_bind() 失败的原因是: " . socket_strerror ( socket_last_error ( $sock ) ) . "\n";
-}
-
-/* 监听指定socket的所有连接 */
-if (socket_listen ( $sock, 5 ) === false) {
-    echo "socket_listen() 失败的原因是: " . socket_strerror ( socket_last_error ( $sock ) ) . "\n";
-}
-
-do {
-    /* 接受一个Socket连接 */
-    if (($msgsock = socket_accept ( $sock )) === false) {
-        echo "socket_accept() 失败的原因是: " . socket_strerror ( socket_last_error ( $sock ) ) . "\n";
-        break;
-    }
+class ServerManager {
 	
-	while($out = socket_read($msgsock, 100)) {
-		echo $out;
-		//echo "接收服务器回传信息成功！\n";
-		$msgArray = explode('#', $out);
-		if($msgArray[0] == "java") {
-			$javaMission = pcntl_fork();
-			if(!$javaMission) shell_exec($msgArray[1]);	
-			$msg = "OK";
-			if(!socket_write($msgsock, $msg, strlen($msg))) {
-				echo "socket_write() failed: reason: " . socket_strerror($msgsock) . "\n";
-			}
+	private static $instance = null;
+	
+	private $address = "127.0.0.1";
+	private $port;
+	private $socket;
+
+	private function __construct() {}
+
+	private function __clone() {}
+
+	function __destruct(){
+		socket_close($this->socket);
+	}
+
+	public static function getInstance() {
+		if(self::$instance == null) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	public function initSetting() {
+		$this->address = "127.0.0.1";
+		$this->port = PortManager::getInstance()->getCommunicatePort();
+		set_time_limit (0);	// 允许脚本挂起等待连接
+		ob_implicit_flush();	// 打开绝对隐式输出刷新
+
+		/* 产生一个socket，相当于产生一个socket的数据结构 */
+		if (($this->socket = socket_create (AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
+			echo "socket_create() 失败的原因是: " . socket_strerror(socket_last_error()) . "\n";
+		}
+		/* 把socket绑定在一个IP地址和端口上 */
+		if (socket_bind ($this->socket, $this->address, $this->port) === false) {
+    		echo "socket_bind() 失败的原因是: " . socket_strerror(socket_last_error($this->socket)) . "\n";
+		}
+		/* 监听指定socket的所有连接 */
+		if (socket_listen ($this->socket, 5) === false) {
+   			echo "socket_listen() 失败的原因是: " . socket_strerror(socket_last_error($this->socket) ) . "\n";
 		}
 	}
-	socket_close ($msgsock);
-} while (true);
 
-socket_close ($sock);
+	private function getClassFilePathFromJavacCommand($javacCommand) {
+		$javacPos = strpos($javacCommand, 'javac') + 5;
+		while($javacCommand[$javacPos] == ' ') {
+			++$javacPos;
+		}
+		$endPos = strpos($javacCommand, '.java') + 5;
+		$javacCommand = str_replace('.java', '.class', $javacCommand);
+		return substr($javacCommand, $javacPos, $endPos - $javacPos + 1);
+	}
+
+	private function getJavaCommandClass($javaCommand) {
+		for($indexA = 0; ' ' == $javaCommand[$indexA]; ++$indexA);
+		for($indexB = $indexA; ' ' != $javaCommand[$indexB]; ++$indexB);
+		return substr($javaCommand, $indexA, $indexB - $indexA);
+	}
+
+	private function javaHandler($javaCommand) {
+		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
+		switch($javaCommandClass) {
+			case 'java':
+				$pid = pcntl_fork();
+				if(0 == $pid) {
+					shell_exec("$javaCommand");
+					exit();
+				}
+				return true;
+			case 'javac':
+				// $noWDate = time();
+				shell_exec($javaCommand);
+				// usleep(200000);
+				// $filePath = $this->getClassFilePathFromJavacCommand($javaCommand);
+				// $fileTime = filemtime($filePath);
+				// while($fileTime == false || $fileTime < $noWDate) {
+				// 	usleep(10000);
+				// 	if(time() - $noWDate > 3) {
+				// 		return false;
+				// 	}
+				// 	$fileTime = filemtime($filePath);
+				// }
+				return true;
+			default:
+				echo "Unknown Java Command:$javaCommand";
+				return false;
+		}
+	}
+
+	public function receiveMessage() {
+		do {
+			/* 接受一个Socket连接 */
+			if (($msgsock = socket_accept ($this->socket)) === false) {
+				echo "socket_accept() 失败的原因是: " . socket_strerror (socket_last_error($this->socket)) . "\n";
+				break;
+			}
+			
+			while($out = socket_read($msgsock, 100)) {
+				echo "接受命令：" . $out . "\n";
+				//接收服务器回传信息成功
+				$msgArray = explode('#', $out);
+				switch($msgArray[0]) {
+					case 'java':
+						$handlerResult = $this->javaHandler($msgArray[1]);
+						if($handlerResult) {
+							$msg = "succeed";
+						} else {
+							$msg = "failed";
+						}
+					break;
+					case 'port':
+						$msg = PortManager::getInstance()->findAvailablePort();
+					break;
+					default:
+						$msg = "unknown";
+					break;
+				}
+				if(!socket_write($msgsock, $msg, strlen($msg))) {
+					echo "socket_write() failed: reason: " . socket_strerror($msgsock) . "\n";
+				}
+			}
+			socket_close ($msgsock);
+		} while (true);
+	}
+}
+
+$server = ServerManager::getInstance();
+$server->initSetting();
+$server->receiveMessage();

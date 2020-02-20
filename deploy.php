@@ -40,7 +40,7 @@ class Deploy {
 	private function writeDeployCode($classHandler , $implementClassHandler) {
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = "tmp/" . $className . ".java";
-		$port = PortManager::getInstance()->findAvailablePort();
+		$port = $this->sendMessageToServer("port#");
 		$readDeployCodeFile = fopen("var/deployCode.txt", "r");
 		$deployCode = fread($readDeployCodeFile, 8000);
 		fclose($readDeployCodeFile);
@@ -52,11 +52,14 @@ class Deploy {
 		if(!is_dir("tmp")) {
 			mkdir("tmp", 0777, true);
 		}
+		touch($fileName);
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
-		shell_exec("javac tmp/$className.java");
-		echo $this->sendMessageToServer("java#java $className");
+		// shell_exec("javac tmp/$className.java");
+		if("succeed" == $this->sendMessageToServer("java#javac $fileName")) {
+			echo $this->sendMessageToServer("java#java $className");
+		}
 	}
 
 	public function deployCode() {
