@@ -79,7 +79,7 @@ class ClassHandler {
 	public function getInterfaceClass() {
 		return $this->interfaceClass;
 	}
-
+	//分析java源代码，并将其以词的形式存储在数组中
 	public function analyzeClassContent() {
 		$classContent = $this->getClassContent();
 		$index = 0;
@@ -107,7 +107,7 @@ class ClassHandler {
             $word = array();
 		}
 	}
-
+	//设置此java类导入的包
 	public function setImportedClasses() {
 		$syncResult = CodeSync::getInstance()->getSyncResult();
 		for($index = 0; $index <= count($this->classWords); ++$index) {
@@ -123,7 +123,7 @@ class ClassHandler {
 			}
 		}
 	}
-
+	//根据词数组分析java类关系
 	public function analyzeClassWords() {
 		$syncResult = CodeSync::getInstance()->getSyncResult();
 		for($index = 0; $index <= count($this->classWords); ++$index) {

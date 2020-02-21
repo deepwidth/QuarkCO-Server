@@ -29,7 +29,7 @@ class ServerManager {
 		}
 		return self::$instance;
 	}
-
+	//初始化设置
 	public function initSetting() {
 		$this->address = "127.0.0.1";
 		$this->port = PortManager::getInstance()->getCommunicatePort();
@@ -50,6 +50,7 @@ class ServerManager {
 		}
 	}
 
+	//从javac命令中获取编译后的.class文件路径
 	private function getClassFilePathFromJavacCommand($javacCommand) {
 		$javacPos = strpos($javacCommand, 'javac') + 5;
 		while($javacCommand[$javacPos] == ' ') {
@@ -59,20 +60,20 @@ class ServerManager {
 		$javacCommand = str_replace('.java', '.class', $javacCommand);
 		return substr($javacCommand, $javacPos, $endPos - $javacPos + 1);
 	}
-
+	//获取java命令类型
 	private function getJavaCommandClass($javaCommand) {
 		for($indexA = 0; ' ' == $javaCommand[$indexA]; ++$indexA);
 		for($indexB = $indexA; ' ' != $javaCommand[$indexB]; ++$indexB);
 		return substr($javaCommand, $indexA, $indexB - $indexA);
 	}
-
+	//java类命令处理方法
 	private function javaHandler($javaCommand) {
 		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
 		switch($javaCommandClass) {
 			case 'java':
 				$pid = pcntl_fork();
 				if(0 == $pid) {
-					shell_exec("$javaCommand");
+					shell_exec($javaCommand);
 					exit();
 				}
 				return true;
@@ -95,7 +96,7 @@ class ServerManager {
 				return false;
 		}
 	}
-
+	//消息接收
 	public function receiveMessage() {
 		do {
 			/* 接受一个Socket连接 */
