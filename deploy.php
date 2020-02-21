@@ -56,9 +56,10 @@ class Deploy {
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
-		// shell_exec("javac tmp/$className.java");
 		if("succeed" == $this->sendMessageToServer("java#javac $fileName")) {
-			echo $this->sendMessageToServer("java#java $className");
+			if("succeed" == $this->sendMessageToServer("java#java $className")) {
+				$this->addDeployedClass($implementClassHandler->getClassFullName(), $port);
+			}
 		}
 	}
 
@@ -102,4 +103,5 @@ $deployModule = Deploy::getInstance();
 $deployModule->setDeployClasses(CodeSync::getInstance()->getSyncResult());
 $deployModule->setImportCode();
 $deployModule->deployCode();
+exit(json_encode($deployModule->getDeployResult()));
 ?>
