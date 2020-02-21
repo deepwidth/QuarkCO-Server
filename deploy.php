@@ -39,9 +39,9 @@ class Deploy {
 
 	private function writeDeployCode($classHandler , $implementClassHandler) {
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
-		$fileName = "tmp/" . $className . ".java";
+		$fileName = __FILE_TEMP__ . $className . ".java";
 		$port = $this->sendMessageToServer("port#");
-		$readDeployCodeFile = fopen("var/deployCode.txt", "r");
+		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
 		$deployCode = fread($readDeployCodeFile, 8000);
 		fclose($readDeployCodeFile);
 		$deployCode = str_replace('?IMPORTCLASSES?', $this->importCode, $deployCode);
@@ -49,8 +49,8 @@ class Deploy {
 		$deployCode = str_replace('?INTERFACECLASS?', $classHandler->getClassName(), $deployCode);
 		$deployCode = str_replace('?IMPLEMENTCLASS?', $implementClassHandler->getClassName(), $deployCode);
 		$deployCode = str_replace('?PORT?', $port, $deployCode);
-		if(!is_dir("tmp")) {
-			mkdir("tmp", 0777, true);
+		if(!is_dir(__FILE_TEMP__)) {
+			mkdir(__FILE_TEMP__, 0777, true);
 		}
 		touch($fileName);
 		$writeDeployCodeFile = fopen($fileName, "w");

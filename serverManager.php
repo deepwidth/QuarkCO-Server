@@ -98,6 +98,7 @@ class ServerManager {
 	}
 	//消息接收
 	public function receiveMessage() {
+		echo "Server is working now!\n";
 		do {
 			/* 接受一个Socket连接 */
 			if (($msgsock = socket_accept ($this->socket)) === false) {

@@ -14,8 +14,8 @@
 //QuarkCO工作目录
 define('__QUARKCO_ROOT_DIR__', dirname(__FILE__));
 
-//存放类的文件夹，在QuarkCO工作目录之下的目录，最后以'/'结束
-define('__CLASSES_ROOT_DIR__', 'QuarkCO/');
+//部署代码
+define('__DEPLOY_CODE_FILE__', 'var/deployCode.txt');
 
 @set_include_path(get_include_path() . PATH_SEPARATOR .
 __QUARKCO_ROOT_DIR__ . '/var');
@@ -55,11 +55,33 @@ $exceptedPorts = array(
 	8080, 8081, 25536
 );
 
+//存放类的文件夹，最后以'/'结束，默认为QuarkCO/
+define('__CLASSES_ROOT_DIR__', 'QuarkCO/');
+
+//临时文件存放文件夹，默认为当前目录下的tmp/
+define('__FILE_TEMP__', 'tmp/');
+
+//=============个性化服务设置结束==================
+
 $portManager = PortManager::getInstance();
 $portManager->setCommunicatePort($communicatePort);
 $portManager->setMiniPort($startPort);
 $portManager->setMaxPort($endPort);
 $portManager->setExceptedPorts($exceptedPorts);
+
+if(__CLASSES_ROOT_DIR__[strlen(__CLASSES_ROOT_DIR__) - 1] != '/') {
+	echo "配置文件错误：'__CLASSES_ROOT_DIR__' 未以 '/' 符号结束，请检查配置文件;\n";
+	$error = 1;
+}
+
+if(__FILE_TEMP__[strlen(__FILE_TEMP__) - 1] != '/') {
+	echo "配置文件错误：'__FILE_TEMP__' 未以 '/' 符号结束，请检查配置文件;\n";
+	$error = 1;
+}
+
+if(isset($error)) {
+	exit();
+}
 
 unset($communicatePort);
 unset($startPort);
