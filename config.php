@@ -32,6 +32,9 @@ require_once "communicateToServer.php";
 //Java类处理类
 require_once "classHandler.php";
 
+//Java类处理类
+require_once "deployedClass.php";
+
 //===============个性化服务设置==================
 
 //模块间通信端口,更改此项设置后重启管理模块(serverManager.php)生效

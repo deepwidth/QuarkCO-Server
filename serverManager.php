@@ -15,6 +15,7 @@ class ServerManager {
 	private $port;
 	private $socket;
 
+	private $deployedClasses = array();	//正在运行的java远程调用服务
 	private function __construct() {}
 
 	private function __clone() {}
@@ -60,6 +61,29 @@ class ServerManager {
 		$javacCommand = str_replace('.java', '.class', $javacCommand);
 		return substr($javacCommand, $javacPos, $endPos - $javacPos + 1);
 	}
+
+	private function addDeployedClasses($deployedClass) {
+		$this->deployedClasses[$deployedClass->getClassFullName()] = $deployedClass;
+	}
+
+	private function findDeployedClasses($classFullName, $result = 'all') {
+		if(array_key_exists($classFullName, $this->deployedClasses)) {
+			$found = $this->deployedClasses[$classFullName];
+		} else {
+			return null;
+		}
+		switch($result) {
+			case 'all':
+				return $found;
+			case 'port':
+				return $found->getPort();
+			case 'pid':
+				return $found->getPid();
+			default:
+				return $found;
+		}
+	}
+
 	//获取java命令类型
 	private function getJavaCommandClass($javaCommand) {
 		for($indexA = 0; ' ' == $javaCommand[$indexA]; ++$indexA);
@@ -67,35 +91,51 @@ class ServerManager {
 		return substr($javaCommand, $indexA, $indexB - $indexA);
 	}
 	//java类命令处理方法
-	private function javaHandler($javaCommand) {
+	private function javaHandler($javaCommand, $javaCheckPort = 2201) {
 		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
 		switch($javaCommandClass) {
 			case 'java':
 				$pid = pcntl_fork();
+				$noWDate = time();
 				if(0 == $pid) {
 					shell_exec($javaCommand);
 					exit();
 				}
-				return true;
+				$pid = shell_exec("lsof -i:$javaCheckPort | grep '(LISTEN)' | awk -F' ' {'print $2'}");
+				while(time() - $noWDate < 2 && null == $pid) {
+					usleep(1000);
+					$pid = shell_exec("lsof -i:$javaCheckPort | grep '(LISTEN)' | awk -F' ' {'print $2'}");
+				}
+				if($pid != null) {
+					return 0;
+				}
+				return -1;
 			case 'javac':
-				// $noWDate = time();
 				shell_exec($javaCommand);
-				// usleep(200000);
-				// $filePath = $this->getClassFilePathFromJavacCommand($javaCommand);
-				// $fileTime = filemtime($filePath);
-				// while($fileTime == false || $fileTime < $noWDate) {
-				// 	usleep(10000);
-				// 	if(time() - $noWDate > 3) {
-				// 		return false;
-				// 	}
-				// 	$fileTime = filemtime($filePath);
-				// }
-				return true;
+				return 0;
 			default:
 				echo "Unknown Java Command:$javaCommand";
-				return false;
+				return -1;
 		}
 	}
+
+	//保存运行的服务的端口和进程号
+	private function saveService($commandArray) {
+		$deployedClass = new DeployedClass();
+		if(strlen($commandArray[1]) <= 0 || $commandArray[2] <= 0) {
+			return -1;
+		}
+
+		$deployedClass->setClassFullName($commandArray[1]);
+		$deployedClass->setPort($commandArray[2]);
+		$pid = shell_exec("lsof -i:$commandArray[2] | grep '(LISTEN)' | awk -F' ' {'print $2'}");
+		$pid = substr($pid, 0, strlen($pid) - 1);
+		$deployedClass->setPid($pid);
+		$this->addDeployedClasses($deployedClass);
+		var_dump($this->deployedClasses);
+		return 0;
+	}
+
 	//消息接收
 	public function receiveMessage() {
 		echo "Server is working now!\n";
@@ -112,15 +152,13 @@ class ServerManager {
 				$msgArray = explode('#', $out);
 				switch($msgArray[0]) {
 					case 'java':
-						$handlerResult = $this->javaHandler($msgArray[1]);
-						if($handlerResult) {
-							$msg = "succeed";
-						} else {
-							$msg = "failed";
-						}
+						$msg = $this->javaHandler($msgArray[1], $msgArray[2]);
 					break;
 					case 'port':
 						$msg = PortManager::getInstance()->findAvailablePort();
+					break;
+					case 'save':
+						$msg = $this->saveService($msgArray);
 					break;
 					default:
 						$msg = "unknown";
@@ -130,8 +168,8 @@ class ServerManager {
 					echo "socket_write() failed: reason: " . socket_strerror($msgsock) . "\n";
 				}
 			}
-			socket_close ($msgsock);
-		} while (true);
+			socket_close($msgsock);
+		} while(true);
 	}
 }
 

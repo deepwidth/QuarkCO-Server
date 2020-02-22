@@ -1,13 +1,15 @@
 <?php
 
-require_once "config.php";
-
 /**
  * deploy.php
  * Date: 2020.2.14
  * Author: Zhang Kangkang
  * Website: https://zkk.me
  */
+
+require_once "config.php";
+
+define('__DEPLOYCODE_CONTEXT_LENGTH__', 2000);
 
  /**
   * 为每一个 Java 类选择一个可用端口，
@@ -42,7 +44,7 @@ class Deploy {
 		$fileName = __FILE_TEMP__ . $className . ".java";
 		$port = $this->sendMessageToServer("port#");
 		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
-		$deployCode = fread($readDeployCodeFile, 8000);
+		$deployCode = fread($readDeployCodeFile, __DEPLOYCODE_CONTEXT_LENGTH__);
 		fclose($readDeployCodeFile);
 		$deployCode = str_replace('?IMPORTCLASSES?', $this->importCode, $deployCode);
 		$deployCode = str_replace('?DEPLOYFILENAME?', $className, $deployCode);
@@ -56,9 +58,12 @@ class Deploy {
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
-		if("succeed" == $this->sendMessageToServer("java#javac $fileName")) {
-			if("succeed" == $this->sendMessageToServer("java#java $className")) {
-				$this->addDeployedClass($implementClassHandler->getClassFullName(), $port);
+		if(0 == $this->sendMessageToServer("java#javac $fileName#$port")) {
+			if(0 == $this->sendMessageToServer("java#java $className#$port")){
+				if(0 == $this->sendMessageToServer("save#"
+				. $implementClassHandler->getClassFullName() . "#" . $port)) {
+					$this->addDeployedClass($implementClassHandler->getClassFullName(), $port);
+				}
 			}
 		}
 	}
