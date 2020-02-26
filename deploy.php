@@ -34,11 +34,13 @@ class Deploy {
 		return self::$instance;
 	}
 
+	//与管理模块通信
 	private function sendMessageToServer($string) {
 		$communicate = new CommunicateToServer();
 		return $communicate->sendMessage($string);
 	}
 
+	//部署绑定服务的Java代码
 	private function writeDeployCode($classHandler , $implementClassHandler) {
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = __FILE_TEMP__ . $className . ".java";
@@ -68,6 +70,7 @@ class Deploy {
 		}
 	}
 
+	// 依次部署每个Java服务
 	public function deployCode() {
 		$syncResult = CodeSync::getInstance()->getSyncResult();
 		foreach($syncResult as $classFullName => $classHandler) {

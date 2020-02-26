@@ -161,14 +161,14 @@ class ServerManager {
 	private function killService($classFullName) {
 		$pid = $this->findDeployedClasses($classFullName, "pid");
 		if($pid === null) {
-			return 0;
+			return -1;
 		} else {
 			shell_exec("kill $pid");
 			$this->deleteDeployedClass($classFullName);
 			if(__LOG_CLASS__ != 0) {
 				Functions::writeLog("$classFullName 已被关闭\n");
 			}
-			return 1;
+			return 0;
 		}
 	}
 
