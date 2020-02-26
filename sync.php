@@ -15,7 +15,7 @@ class Sync {
 		if(@$_POST['quarkco']) {
 			return json_decode(@$_POST['quarkco']);
 		} else {
-			echo "1001";
+			echo "error:1001,未发现post参数";
 			exit();
 		}
 	}

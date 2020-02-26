@@ -1,11 +1,21 @@
 <?php
 
-// Socket举例：简单的TCP/IP服务器
-// 改变地址和端口以满足你的设置和执行。
-// telnet 192.168.1.53 10000连接到服务器，（这里是你设置的地址和端口）。 //输入任何东西都会在服务器端输出来，然后回显给你。
-// 断开连接，请输入'quit'。
+/**
+ * serverManager.php
+ * Date: 2020.2.20
+ * Author: Zhang Kangkang
+ * Website: https://zkk.me
+ */
+
+/**
+ * 增加服务是否成功杀掉的判断；
+ */
 
 require_once "config.php";
+
+/**
+ * 管理模块
+ */
 
 class ServerManager {
 	
@@ -64,6 +74,10 @@ class ServerManager {
 
 	private function addDeployedClasses($deployedClass) {
 		$this->deployedClasses[$deployedClass->getClassFullName()] = $deployedClass;
+	}
+
+	private function deleteDeployedClass($classFullName) {
+		unset($this->deployedClasses[$classFullName]);
 	}
 
 	private function findDeployedClasses($classFullName, $result = 'all') {
@@ -132,11 +146,33 @@ class ServerManager {
 		$pid = substr($pid, 0, strlen($pid) - 1);
 		$deployedClass->setPid($pid);
 		$this->addDeployedClasses($deployedClass);
-		var_dump($this->deployedClasses);
 		return 0;
 	}
 
-	//消息接收
+	//杀掉某个服务
+	private function killService($classFullName) {
+		$pid = $this->findDeployedClasses($classFullName, "pid");
+		if($pid === null) {
+			return 0;
+		} else {
+			shell_exec("kill $pid");
+			$this->deleteDeployedClass($classFullName);
+			echo "$classFullName 已被关闭\n";
+			return 1;
+		}
+	}
+
+	/**
+	 * 消息接受方法
+	 * 有以下几种消息类型
+	 * Java类消息(java$Java Command#port)
+	 * * * java#javac tmp/ExampleService_ExampleServiceImpl.java#2201
+	 * * * java#java ExampleService_ExampleServiceImpl#2201
+	 * port类消息(port#)
+	 * * * port#
+	 * save类消息(save#classFullName#port)
+	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201
+	 */
 	public function receiveMessage() {
 		echo "Server is working now!\n";
 		do {
@@ -159,6 +195,9 @@ class ServerManager {
 					break;
 					case 'save':
 						$msg = $this->saveService($msgArray);
+					break;
+					case 'kill':
+						$msg = $this->killService($msgArray[1]);
 					break;
 					default:
 						$msg = "unknown";
