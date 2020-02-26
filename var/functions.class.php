@@ -13,18 +13,21 @@
 
 class Functions {
 
-    //写日志
+    /**
+     * 写日志
+     * 
+     * @access public
+     * @param string $string 要写入的内容
+     * @return int 写入内容的总长度
+     */
     public static function writeLog($string) {
-        echo "写入日志: $string \n";
         if(!file_exists(__LOG_FILE__)) {
             touch(__LOG_FILE__);
         }
 
-        if('\n' != $string[strlen($string) - 1]) {
-            $string = $string . "\n";
-        }
+        $string = $string . "\n";
         $logFile = fopen(__LOG_FILE__, "a");
-        $log = "[" . date("Y-m-d h:i:s") . "] " . $string;
+        $log = "[" . date("Y-m-d H:i:s") . "] " . $string;
         $result = fwrite($logFile, $log);
         fclose($logFile);
         return $result;

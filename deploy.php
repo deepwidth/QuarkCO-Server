@@ -74,10 +74,12 @@ class Deploy {
 	public function deployCode() {
 		$syncResult = CodeSync::getInstance()->getSyncResult();
 		foreach($syncResult as $classFullName => $classHandler) {
-			if($classHandler->isInterface()) {
+			if($classHandler->isInterface) {
 				foreach($classHandler->getImplementClassHandler() as $key => $implementClassHandler) {
 					$this->writeDeployCode($classHandler, $implementClassHandler);
 				}
+			} else if($classHandler->isAbstractClass) {
+				continue;
 			} else if($classHandler->getInterfaceClass() == null){
 				$this->writeDeployCode($classHandler, $classHandler);
 			}

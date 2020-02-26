@@ -116,7 +116,7 @@ class ServerManager {
 				if(0 == $pid) {
 					shell_exec($javaCommand);
 					if(__LOG_CLASS__ != 0) {
-						Functions::writeLog("$javaCommand 已成功部署，端口为$javaCheckPort\n");
+						Functions::writeLog("$javaCommand 已成功部署，端口为$javaCheckPort");
 					}
 					exit();
 				}
@@ -152,7 +152,7 @@ class ServerManager {
 		$deployedClass->setPid($pid);
 		$this->addDeployedClasses($deployedClass);
 		if(__LOG_CLASS__ != 0) {
-			Functions::writeLog($commandArray[1] . "已部署，端口为$commandArray[2]\n");
+			Functions::writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
 		}
 		return 0;
 	}

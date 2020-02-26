@@ -27,6 +27,13 @@ class CommunicateToServer {
 		socket_close($this->socket);
 	}
 
+	/**
+	 * 向管理模块发送一条消息并获取一条返回的消息
+	 * 
+	 * @access public
+	 * @param string $message 要发送的消息
+	 * @return string 管理模块返回的消息
+	 */
 	public function sendMessage($message) {
 		$connectResult = socket_connect($this->socket, $this->ip, $this->port);
 		if ($connectResult < 0) {

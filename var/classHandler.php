@@ -22,14 +22,16 @@ class ClassHandler {
 	private $classWords = array();	//类代码内容词汇数组
 	private $classPackage;	//类所在的包
 
-	private $isInterface = false;	//是否是接口类
+	public $isInterface = false;	//是否是接口类
 	private $interfaceClass = null;	//其接口类
 	private $implementClassHandler = array();	//其实现类
 
 	private $importedClasses = array();	//所导入的类
-	// private $abstractClass;	//是否抽象类
+	public $isAbstractClass = false;	//是否抽象类
+	private $parentClass = null;	//父类
 	
-	private $splitSymbol = array(' ', "\n", "\t", ',', '(', ')', '[', ']', '{', '}', ';', "\'", '"');
+	private $splitSymbol = array(' ', "\n", "\t", ',', '(', ')',
+	 '[', ']', '{', '}', ';', "\'", '"', '<', '>');
 
 	public function getClassName() {
 		return $this->className;
@@ -62,15 +64,6 @@ class ClassHandler {
 	public function getClassContent() {
 		return $this->classContent;
 	}
-	
-	private function setISInterface($isInterface) {
-		$this->isInterface = $isInterface;
-	}
-	
-	public function isInterface() {
-		return $this->isInterface;
-	}
-	
 	
 	public function getImplementClassHandler() {
 		return $this->implementClassHandler;
@@ -117,9 +110,11 @@ class ClassHandler {
 				if(array_key_exists($classFullName, $syncResult)) {
 					$this->importedClasses[$syncResult[$classFullName]->getClassName()] = $syncResult[$classFullName];
 				} 
-			} else if($this->classWords[$index] == "implements") {
+			} else if($this->classWords[$index] == "implements" || $this->classWords[$index] == "extends") {
 				++$index;
-				$this->importedClasses[$this->classWords[$index]] = $syncResult[$this->classPackage . "." . $this->classWords[$index]];
+				if(array_key_exists($this->classPackage . "." . $this->classWords[$index], $syncResult)) {
+					$this->importedClasses[$this->classWords[$index]] = $syncResult[$this->classPackage . "." . $this->classWords[$index]];
+				}
 			}
 		}
 	}
@@ -139,13 +134,16 @@ class ClassHandler {
 				++$index;
 				$this->isInterface = true;
 			}
-			//其他关键词为后续完善工作
-			// if($this->classWords[$index] == "extents") {
-			// 	++$index;
-			// 	if(array_key_exists($this->importedClasses, $this->classWords[$index])) {
-			// 		array_push($this->importedClasses[$this->classWords[$index]]->implementClassHandler, $this);
-			// 	}
-			// }
+			if($this->classWords[$index] == "abstract") {
+				++$index;
+				$this->isAbstractClass = true;
+			}
+			if($this->classWords[$index] == "extends") {
+				++$index;
+				if(array_key_exists($this->classWords[$index], $this->importedClasses)) {
+					$this->parentClass = $this->importedClasses[$this->classWords[$index]];
+				}	
+			}
 		}
 	}
 }
