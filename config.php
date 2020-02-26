@@ -8,7 +8,8 @@
 */
 
 /**
- * This is the config file of QuarkCO work.
+ * 这是配置文件
+ * 更改配置文件后需要重启管理模块(serverManager.php)以生效
 */
 
 //QuarkCO工作目录
@@ -34,6 +35,9 @@ require_once "classHandler.php";
 
 //Java类处理类
 require_once "deployedClass.php";
+
+//通用功能类
+require_once "functions.class.php";
 
 //===============个性化服务设置==================
 
@@ -63,6 +67,16 @@ define('__CLASSES_ROOT_DIR__', 'QuarkCO/');
 
 //临时文件存放文件夹，默认为当前目录下的tmp/
 define('__FILE_TEMP__', 'tmp/');
+
+// 服务端运行的日志类型
+// 0:不开启日志
+// 1：简要日志，仅包含服务的产生与消亡信息
+// 2：详细日志，包含服务端运行情况细节
+// 默认为开启简要日志
+define('__LOG_CLASS__', 1);
+
+//服务端运行的日志文件
+define('__LOG_FILE__', 'quarkco.log');
 
 //=============个性化服务设置结束==================
 

@@ -40,6 +40,7 @@ class ServerManager {
 		}
 		return self::$instance;
 	}
+
 	//初始化设置
 	public function initSetting() {
 		$this->address = "127.0.0.1";
@@ -104,6 +105,7 @@ class ServerManager {
 		for($indexB = $indexA; ' ' != $javaCommand[$indexB]; ++$indexB);
 		return substr($javaCommand, $indexA, $indexB - $indexA);
 	}
+
 	//java类命令处理方法
 	private function javaHandler($javaCommand, $javaCheckPort = 2201) {
 		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
@@ -113,6 +115,9 @@ class ServerManager {
 				$noWDate = time();
 				if(0 == $pid) {
 					shell_exec($javaCommand);
+					if(__LOG_CLASS__ != 0) {
+						Functions::writeLog("$javaCommand 已成功部署，端口为$javaCheckPort\n");
+					}
 					exit();
 				}
 				$pid = shell_exec("lsof -i:$javaCheckPort | grep '(LISTEN)' | awk -F' ' {'print $2'}");
@@ -146,6 +151,9 @@ class ServerManager {
 		$pid = substr($pid, 0, strlen($pid) - 1);
 		$deployedClass->setPid($pid);
 		$this->addDeployedClasses($deployedClass);
+		if(__LOG_CLASS__ != 0) {
+			Functions::writeLog($commandArray[1] . "已部署，端口为$commandArray[2]\n");
+		}
 		return 0;
 	}
 
@@ -157,7 +165,9 @@ class ServerManager {
 		} else {
 			shell_exec("kill $pid");
 			$this->deleteDeployedClass($classFullName);
-			echo "$classFullName 已被关闭\n";
+			if(__LOG_CLASS__ != 0) {
+				Functions::writeLog("$classFullName 已被关闭\n");
+			}
 			return 1;
 		}
 	}
@@ -165,7 +175,7 @@ class ServerManager {
 	/**
 	 * 消息接受方法
 	 * 有以下几种消息类型
-	 * Java类消息(java$Java Command#port)
+	 * Java类消息(java#Java Command#port)
 	 * * * java#javac tmp/ExampleService_ExampleServiceImpl.java#2201
 	 * * * java#java ExampleService_ExampleServiceImpl#2201
 	 * port类消息(port#)
