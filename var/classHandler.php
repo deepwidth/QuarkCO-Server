@@ -5,7 +5,7 @@ require_once "config.php";
  * classHandler.php
  * Date: 2020.2.14
  * Author: Zhang Kangkang
- * Website: https://zkk.me
+ * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
  
  /**

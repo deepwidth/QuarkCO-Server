@@ -4,7 +4,7 @@
  * codeSync.php
  * Date: 2020.2.13
  * Author: Zhang Kangkang
- * Website: https://zkk.me
+ * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
 
  /**
@@ -115,7 +115,13 @@ class CodeSync {
 		$classHandler->analyzeClassContent();
 		return $classHandler;
 	}
-	//建立 Java 代码文件
+
+	/**
+	 * 根据请求中的代码建立正确的代码文件
+	 * 
+	 * @access public
+	 * @param mixed $object 请求中的代码json_decode之后的数据
+	 */
 	public function sync($object) {
 		foreach($object as $oldFileName => $fileContent) {
 			$this->classMap[__CLASSES_ROOT_DIR__.$this->classNameFormat($oldFileName).".java"] = $fileContent;	//更改classMap索引格式

@@ -4,7 +4,7 @@
  * functions.class.php
  * Date: 2020.2.26
  * Author: Zhang Kangkang
- * Website: https://zkk.me
+ * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
 
  /**

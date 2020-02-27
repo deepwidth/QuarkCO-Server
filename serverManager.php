@@ -4,7 +4,7 @@
  * serverManager.php
  * Date: 2020.2.20
  * Author: Zhang Kangkang
- * Website: https://zkk.me
+ * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
 
 /**
@@ -62,17 +62,6 @@ class ServerManager {
 		}
 	}
 
-	//从javac命令中获取编译后的.class文件路径
-	private function getClassFilePathFromJavacCommand($javacCommand) {
-		$javacPos = strpos($javacCommand, 'javac') + 5;
-		while($javacCommand[$javacPos] == ' ') {
-			++$javacPos;
-		}
-		$endPos = strpos($javacCommand, '.java') + 5;
-		$javacCommand = str_replace('.java', '.class', $javacCommand);
-		return substr($javacCommand, $javacPos, $endPos - $javacPos + 1);
-	}
-
 	private function addDeployedClasses($deployedClass) {
 		$this->deployedClasses[$deployedClass->getClassFullName()] = $deployedClass;
 	}
@@ -81,6 +70,13 @@ class ServerManager {
 		unset($this->deployedClasses[$classFullName]);
 	}
 
+	/**
+	 * 从已部署服务中寻找某个服务
+	 * 
+	 * @access private
+	 * @param string $classFullName 要寻找的java类的全名
+	 * @param string $result 要返回的结果，'all':整个结构体;'port'端口;;'pid':进程号;
+	 */
 	private function findDeployedClasses($classFullName, $result = 'all') {
 		if(array_key_exists($classFullName, $this->deployedClasses)) {
 			$found = $this->deployedClasses[$classFullName];
@@ -106,8 +102,15 @@ class ServerManager {
 		return substr($javaCommand, $indexA, $indexB - $indexA);
 	}
 
-	//java类命令处理方法
-	private function javaHandler($javaCommand, $javaCheckPort = 2201) {
+	/**
+	 * java类命令处理方法
+	 * 
+	 * @access private
+	 * @param string $javaCommand java命令
+	 * @param string $javaCheckPort 服务绑定的端口
+	 * @return int 0:成功;-1:失败; 
+	 */
+	private function javaHandler($javaCommand, $javaCheckPort) {
 		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
 		switch($javaCommandClass) {
 			case 'java':
@@ -133,12 +136,20 @@ class ServerManager {
 				shell_exec($javaCommand);
 				return 0;
 			default:
-				echo "Unknown Java Command:$javaCommand";
+				if(__LOG_CLASS__ != 0) {
+					Functions::writeLog("未知Java命令:$javaCommand");
+				}
 				return -1;
 		}
 	}
 
-	//保存运行的服务的端口和进程号
+	/**
+	 * 保存运行的服务的端口和进程号
+	 * 
+	 * @access private
+	 * @param array(string) $commandArray 保存服务的save指令数组
+	 * @return int 0:成功;-1:失败;
+	 */
 	private function saveService($commandArray) {
 		$deployedClass = new DeployedClass();
 		if(strlen($commandArray[1]) <= 0 || $commandArray[2] <= 0) {
@@ -157,7 +168,14 @@ class ServerManager {
 		return 0;
 	}
 
-	//杀掉某个服务
+	/**
+	 * 杀掉某个服务
+	 * 
+	 * @access private
+	 * @param string $classFUllName 杀掉服务的java类全名
+	 * @return -1:失败	0:成功
+	 * 
+	 */
 	private function killService($classFullName) {
 		$pid = $this->findDeployedClasses($classFullName, "pid");
 		if($pid === null) {

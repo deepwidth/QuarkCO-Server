@@ -4,7 +4,7 @@
  * sync.php
  * Date: 2020.2.13
  * Author: Zhang Kangkang
- * Website: https://zkk.me
+ * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
  
 require_once "config.php";

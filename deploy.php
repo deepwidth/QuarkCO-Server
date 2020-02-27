@@ -4,7 +4,7 @@
  * deploy.php
  * Date: 2020.2.14
  * Author: Zhang Kangkang
- * Website: https://zkk.me
+ * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
 
 require_once "config.php";
@@ -40,7 +40,13 @@ class Deploy {
 		return $communicate->sendMessage($string);
 	}
 
-	//部署绑定服务的Java代码
+	/**
+	 * 部署绑定服务的Java代码
+	 * 
+	 * @access private
+	 * @param mixed $classHandler 绑定服务java代码中的创建类的变量类型
+	 * @param mixed $implementClassHandler 绑定服务java代码中的创建类的方法
+	 */
 	private function writeDeployCode($classHandler , $implementClassHandler) {
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = __FILE_TEMP__ . $className . ".java";
