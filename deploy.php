@@ -34,12 +34,6 @@ class Deploy {
 		return self::$instance;
 	}
 
-	//与管理模块通信
-	private function sendMessageToServer($string) {
-		$communicate = new CommunicateToServer();
-		return $communicate->sendMessage($string);
-	}
-
 	/**
 	 * 部署绑定服务的Java代码
 	 * 
@@ -50,7 +44,7 @@ class Deploy {
 	private function writeDeployCode($classHandler , $implementClassHandler) {
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = __FILE_TEMP__ . $className . ".java";
-		$port = $this->sendMessageToServer("port#");
+		$port = Functions::sendMessageToServer("port#");
 		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
 		$deployCode = fread($readDeployCodeFile, __DEPLOYCODE_CONTEXT_LENGTH__);
 		fclose($readDeployCodeFile);
@@ -66,9 +60,9 @@ class Deploy {
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
-		if(0 == $this->sendMessageToServer("java#javac $fileName#$port")) {
-			if(0 == $this->sendMessageToServer("java#java $className#$port")){
-				if(0 == $this->sendMessageToServer("save#"
+		if(__FAILED__ !== Functions::sendMessageToServer("java#javac $fileName#$port")) {
+			if(__FAILED__ !== Functions::sendMessageToServer("java#java $className#$port")){
+				if(__FAILED__ !== Functions::sendMessageToServer("save#"
 				. $implementClassHandler->getClassFullName() . "#" . $port)) {
 					$this->addDeployedClass($implementClassHandler->getClassFullName(), $port);
 				}

@@ -79,6 +79,6 @@ class PortManager {
 				return $port;
 			}
 		}
-		return -1;
+		return __FAILED__;
 	}
 }

@@ -75,7 +75,7 @@ class ServerManager {
 	 * 
 	 * @access private
 	 * @param string $classFullName 要寻找的java类的全名
-	 * @param string $result 要返回的结果，'all':整个结构体;'port'端口;;'pid':进程号;
+	 * @param string $result 要返回的结果，'all':整个结构体;'port'端口;'pid':进程号;
 	 */
 	private function findDeployedClasses($classFullName, $result = 'all') {
 		if(array_key_exists($classFullName, $this->deployedClasses)) {
@@ -108,7 +108,7 @@ class ServerManager {
 	 * @access private
 	 * @param string $javaCommand java命令
 	 * @param string $javaCheckPort 服务绑定的端口
-	 * @return int 0:成功;-1:失败; 
+	 * @return __FAILED__:失败 __SUCCESS__:成功
 	 */
 	private function javaHandler($javaCommand, $javaCheckPort) {
 		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
@@ -129,17 +129,17 @@ class ServerManager {
 					$pid = shell_exec("lsof -i:$javaCheckPort | grep '(LISTEN)' | awk -F' ' {'print $2'}");
 				}
 				if($pid != null) {
-					return 0;
+					return __SUCCESS__;
 				}
-				return -1;
+				return __FAILED__;
 			case 'javac':
 				shell_exec($javaCommand);
-				return 0;
+				return __SUCCESS__;
 			default:
 				if(__LOG_CLASS__ != 0) {
 					Functions::writeLog("未知Java命令:$javaCommand");
 				}
-				return -1;
+				return __FAILED__;
 		}
 	}
 
@@ -148,12 +148,12 @@ class ServerManager {
 	 * 
 	 * @access private
 	 * @param array(string) $commandArray 保存服务的save指令数组
-	 * @return int 0:成功;-1:失败;
+	 * @return __FAILED__:失败 __SUCCESS__:成功
 	 */
 	private function saveService($commandArray) {
 		$deployedClass = new DeployedClass();
 		if(strlen($commandArray[1]) <= 0 || $commandArray[2] <= 0) {
-			return -1;
+			return __FAILED__;
 		}
 
 		$deployedClass->setClassFullName($commandArray[1]);
@@ -165,7 +165,7 @@ class ServerManager {
 		if(__LOG_CLASS__ != 0) {
 			Functions::writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
 		}
-		return 0;
+		return __SUCCESS__;
 	}
 
 	/**
@@ -173,20 +173,20 @@ class ServerManager {
 	 * 
 	 * @access private
 	 * @param string $classFUllName 杀掉服务的java类全名
-	 * @return -1:失败	0:成功
+	 * @return __FAILED__:失败 __SUCCESS__:成功
 	 * 
 	 */
 	private function killService($classFullName) {
 		$pid = $this->findDeployedClasses($classFullName, "pid");
 		if($pid === null) {
-			return -1;
+			return __FAILED__;
 		} else {
 			shell_exec("kill $pid");
 			$this->deleteDeployedClass($classFullName);
 			if(__LOG_CLASS__ != 0) {
 				Functions::writeLog("$classFullName 已被关闭\n");
 			}
-			return 0;
+			return __SUCCESS__;
 		}
 	}
 

@@ -18,6 +18,11 @@ define('__QUARKCO_ROOT_DIR__', dirname(__FILE__));
 //部署代码
 define('__DEPLOY_CODE_FILE__', 'var/deployCode.txt');
 
+//程序间返回操作成功码
+define('__SUCCESS__', 0);
+//程序间返回操作失败码
+define('__FAILED__', -1);
+
 @set_include_path(get_include_path() . PATH_SEPARATOR .
 __QUARKCO_ROOT_DIR__ . '/var');
 

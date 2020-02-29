@@ -36,11 +36,11 @@ class CommunicateToServer {
 	 */
 	public function sendMessage($message) {
 		$connectResult = socket_connect($this->socket, $this->ip, $this->port);
-		if ($connectResult < 0) {
-		    return -1;
+		if (false === $connectResult) {
+		    return false;
 		}
 		if(!socket_write($this->socket, $message, strlen($message))) {
-			return -1;
+			return false;
 		} else {
 			$out = socket_read($this->socket, 1024);
 			return $out;

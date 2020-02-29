@@ -31,5 +31,16 @@ class Functions {
         $result = fwrite($logFile, $log);
         fclose($logFile);
         return $result;
-    } 
+    }
+
+    // 与管理模块通信
+    public static function sendMessageToServer($string) {
+        $communicate = new CommunicateToServer();
+        $result = $communicate->sendMessage($string);
+		if(false === $result) {
+            return __FAILED__;
+        } else {
+            return $result;
+        };
+	}
 }
