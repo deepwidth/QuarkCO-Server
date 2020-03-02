@@ -14,7 +14,7 @@ class Sync {
 	public function getPost() {
 		if(@$_POST['quarkco']) {
 			if(__LOG_CLASS__ != 0) {
-				Functions::writeLog("接收到代码同步请求，已发现代码参数");
+				writeLog("接收到代码同步请求，已发现代码参数");
 			}
 			return json_decode(@$_POST['quarkco']);
 		} else {

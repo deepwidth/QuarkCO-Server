@@ -42,7 +42,7 @@ require_once "classHandler.php";
 require_once "deployedClass.php";
 
 //通用功能类
-require_once "functions.class.php";
+require_once "functions.php";
 
 //===============个性化服务设置==================
 

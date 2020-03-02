@@ -119,7 +119,7 @@ class ServerManager {
 				if(0 == $pid) {
 					shell_exec($javaCommand);
 					if(__LOG_CLASS__ != 0) {
-						Functions::writeLog("$javaCommand 已成功部署，端口为$javaCheckPort");
+						writeLog("$javaCommand 已成功部署，端口为$javaCheckPort");
 					}
 					exit();
 				}
@@ -137,7 +137,7 @@ class ServerManager {
 				return __SUCCESS__;
 			default:
 				if(__LOG_CLASS__ != 0) {
-					Functions::writeLog("未知Java命令:$javaCommand");
+					writeLog("未知Java命令:$javaCommand");
 				}
 				return __FAILED__;
 		}
@@ -163,7 +163,7 @@ class ServerManager {
 		$deployedClass->setPid($pid);
 		$this->addDeployedClasses($deployedClass);
 		if(__LOG_CLASS__ != 0) {
-			Functions::writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
+			writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
 		}
 		return __SUCCESS__;
 	}
@@ -184,7 +184,7 @@ class ServerManager {
 			shell_exec("kill $pid");
 			$this->deleteDeployedClass($classFullName);
 			if(__LOG_CLASS__ != 0) {
-				Functions::writeLog("$classFullName 已被关闭\n");
+				writeLog("$classFullName 已被关闭\n");
 			}
 			return __SUCCESS__;
 		}

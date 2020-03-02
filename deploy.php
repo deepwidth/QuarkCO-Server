@@ -44,7 +44,7 @@ class Deploy {
 	private function writeDeployCode($classHandler , $implementClassHandler) {
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = __FILE_TEMP__ . $className . ".java";
-		$port = Functions::sendMessageToServer("port#");
+		$port = sendMessageToServer("port#");
 		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
 		$deployCode = fread($readDeployCodeFile, __DEPLOYCODE_CONTEXT_LENGTH__);
 		fclose($readDeployCodeFile);
@@ -60,9 +60,9 @@ class Deploy {
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
-		if(__FAILED__ !== Functions::sendMessageToServer("java#javac $fileName#$port")) {
-			if(__FAILED__ !== Functions::sendMessageToServer("java#java $className#$port")){
-				if(__FAILED__ !== Functions::sendMessageToServer("save#"
+		if(__FAILED__ !== sendMessageToServer("java#javac $fileName#$port")) {
+			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
+				if(__FAILED__ !== sendMessageToServer("save#"
 				. $implementClassHandler->getClassFullName() . "#" . $port)) {
 					$this->addDeployedClass($implementClassHandler->getClassFullName(), $port);
 				}
