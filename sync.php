@@ -12,11 +12,11 @@ require_once "config.php";
 class Sync {
 
 	public function getPost() {
-		if(@$_POST['quarkco']) {
+		if(@$_POST[__POST_PARAM_NAME__]) {
 			if(__LOG_CLASS__ != 0) {
 				writeLog("接收到代码同步请求，已发现代码参数");
 			}
-			return json_decode(@$_POST['quarkco']);
+			return json_decode(@$_POST[__POST_PARAM_NAME__]);
 		} else {
 			echo "error:1001,未发现post参数";
 			exit();

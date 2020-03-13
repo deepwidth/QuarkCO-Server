@@ -46,6 +46,10 @@ require_once "functions.php";
 
 //===============个性化服务设置==================
 
+// POST请求参数中包含迁移代码的参数名
+// 默认为 quarkco
+define("__POST_PARAM_NAME__", "quarkco");
+
 //模块间通信端口,更改此项设置后重启管理模块(serverManager.php)生效
 //默认为2200
 $communicatePort = 2200;
