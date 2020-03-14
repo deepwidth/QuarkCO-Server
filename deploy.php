@@ -64,7 +64,7 @@ class Deploy {
 			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
 				if(__FAILED__ !== sendMessageToServer("save#"
 				. $implementClassHandler->getClassFullName() . "#" . $port)) {
-					$this->addDeployedClass($implementClassHandler->getClassFullName(), $port);
+					$this->addDeployedClass($implementClassHandler->getClassParamName(), $port);
 				}
 			}
 		}

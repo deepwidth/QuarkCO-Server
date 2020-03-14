@@ -21,6 +21,7 @@ class ClassHandler {
 	private $classContent;	//类代码内容
 	private $classWords = array();	//类代码内容词汇数组
 	private $classPackage;	//类所在的包
+	private $classParamName; // 类完整名字下划线形式（例如：me_zkk_kkapp）
 
 	public $isInterface = false;	//是否是接口类
 	private $interfaceClass = null;	//其接口类
@@ -40,12 +41,18 @@ class ClassHandler {
 	public function getClassFullName() {
 		return $this->classFullName;
 	}
-	
+
+	public function getClassParamName() {
+		return $this->classParamName;
+	}
+
+	// 设置 $classFullName 、$classParamName、$classPackage、$className
 	public function setClassFullName($classFullName) {
 		$this->className =
 		substr($classFullName, strrpos($classFullName, '.') + 1);
 		$this->classPackage = substr($classFullName, 0, strrpos($classFullName, '.'));
 		$this->classFullName = $classFullName;
+		$this->classParamName = str_replace('.', '_', $classFullName);
 	}
 	
 	public function setClassFilePath($classFilePath) {

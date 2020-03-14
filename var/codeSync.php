@@ -85,8 +85,10 @@ class CodeSync {
 	private function classNameInDotFormat($filePath) {
 		$inDotFormat = str_replace('/', '.', $filePath);
 		$inDotFormat = substr($inDotFormat, 0, strrpos($inDotFormat, '.'));
+		// 返回java类的全名（例如：me.zkk.kkapp）
 		return substr($inDotFormat, strpos($inDotFormat, '.') + 1);
 	}
+	
 	//写文件
 	private function writeFile($filePath) {
 		$fileToWrite = fopen($filePath, "w");
