@@ -233,6 +233,9 @@ class ServerManager {
 					case 'kill':
 						$msg = $this->killService($msgArray[1]);
 					break;
+					case 'check':
+						$msg = "OK";
+					break;
 					default:
 						$msg = "unknown";
 					break;

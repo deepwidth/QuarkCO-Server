@@ -1,7 +1,7 @@
 <?php
 
 /**
- * communicateToManager.php
+ * communicateToManager.php -- (弃用)
  * Date: 2020.2.14
  * Author: Zhang Kangkang
  * Website: https://github.com/twoFiveOneTen/QuarkCO-Server

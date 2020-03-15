@@ -26,6 +26,9 @@ class Sync {
 }
 $sync = new Sync();
 $codes = $sync->getPost();
+if(false === isManagerWorking()) {
+	exit("error:1002,服务端未启动");
+}
 $syncedClasses = CodeSync::getInstance();
 $syncedClasses->sync($codes);
 

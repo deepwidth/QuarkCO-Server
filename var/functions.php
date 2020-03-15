@@ -53,12 +53,39 @@ function getPath($string) {
  * @param string $string 向管理模块发送的消息
  * @return __FAILED__/string 操作失败或者管理模块返回的消息 
  */
-function sendMessageToServer($string) {
-    $communicate = new CommunicateToServer();
-    $result = $communicate->sendMessage($string);
-    if(false === $result) {
+function sendMessageToServer($message) {
+
+    $ip = "127.0.0.1";
+    $port = PortManager::getInstance()->getCommunicatePort();
+    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+    if(false === $socket) {
         return __FAILED__;
-    } else {
-        return $result;
-    };
+    }
+    $connectResult = socket_connect($socket, $ip, $port);
+	if (false === $connectResult) {
+	    return __FAILED__;
+	}
+	if(!socket_write($socket, $message, strlen($message))) {
+        socket_close($socket);
+		return __FAILED__;
+	} else {
+        $out = socket_read($socket, 1024);
+        socket_close($socket);
+        if(false === $out) {
+            return __FAILED__;
+        }
+		return $out;
+	}
+}
+
+/**
+ * 检查管理模块是否正常工作
+ * 
+ * @return bool 是否在正常工作
+ */
+function isManagerWorking() {
+    if(__FAILED__ === sendMessageToServer("check#")) {
+        return false;
+    }
+    return true;
 }
