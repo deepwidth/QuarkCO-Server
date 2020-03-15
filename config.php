@@ -81,8 +81,8 @@ define('__FILE_TEMP__', 'tmp/');
 // 0:不开启日志
 // 1：简要日志，仅包含服务的产生与消亡信息
 // 2：详细日志，包含服务端运行情况细节
-// 默认为开启简要日志
-define('__LOG_CLASS__', 1);
+// 默认为开启详细日志
+define('__LOG_CLASS__', 2);
 
 //服务端运行的日志文件
 define('__LOG_FILE__', 'quarkco.log');

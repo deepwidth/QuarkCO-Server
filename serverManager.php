@@ -48,6 +48,12 @@ class ServerManager {
 		set_time_limit (0);	// 允许脚本挂起等待连接
 		ob_implicit_flush();	// 打开绝对隐式输出刷新
 
+		$pid = getmypid();
+		echo "管理模块启动，进程号为 $pid \n";
+		if(__LOG_CLASS__ == 2) {
+			writeLog("管理模块启动，进程号为$pid");
+		}
+
 		/* 产生一个socket，相当于产生一个socket的数据结构 */
 		if (($this->socket = socket_create (AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
 			echo "socket_create() 失败的原因是: " . socket_strerror(socket_last_error()) . "\n";
