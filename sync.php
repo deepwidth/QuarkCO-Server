@@ -18,8 +18,7 @@ class Sync {
 			}
 			return json_decode(@$_POST[__POST_PARAM_NAME__]);
 		} else {
-			echo "error:1001,未发现post参数";
-			exit();
+			exitWithErrorCode("1001");
 		}
 	}
 
@@ -27,7 +26,7 @@ class Sync {
 $sync = new Sync();
 $codes = $sync->getPost();
 if(false === isManagerWorking()) {
-	exit("error:1002,服务端未启动");
+	exitWithErrorCode("1002");
 }
 $syncedClasses = CodeSync::getInstance();
 $syncedClasses->sync($codes);

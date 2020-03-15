@@ -89,3 +89,16 @@ function isManagerWorking() {
     }
     return true;
 }
+
+/**
+ * 当服务端发生错误时，通过此方法终止执行，并返回错误码
+ * 
+ * @param $code 错误码
+ * 错误码类别：
+ * *1001: 未发现Post请求参数
+ * *1002: 服务端未运行
+ */
+function exitWithErrorCode($code) {
+    $error = array("error" => $code);
+    exit(json_encode($error));
+}
