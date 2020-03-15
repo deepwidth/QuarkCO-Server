@@ -179,20 +179,21 @@ class ServerManager {
 	 * 
 	 * @access private
 	 * @param string $classFUllName 杀掉服务的java类全名
-	 * @return __FAILED__:失败 __SUCCESS__:成功
+	 * @return __FAILED__:失败 string:被释放的端口
 	 * 
 	 */
 	private function killService($classFullName) {
-		$pid = $this->findDeployedClasses($classFullName, "pid");
-		if($pid === null) {
+		$deployedClass = $this->findDeployedClasses($classFullName);
+		if($deployedClass === null) {
 			return __FAILED__;
 		} else {
+			$pid = $deployedClass->getPid();
 			shell_exec("kill $pid");
 			$this->deleteDeployedClass($classFullName);
 			if(__LOG_CLASS__ != 0) {
 				writeLog("$classFullName 已被关闭\n");
 			}
-			return __SUCCESS__;
+			return $deployedClass->getPort();
 		}
 	}
 
@@ -206,6 +207,10 @@ class ServerManager {
 	 * * * port#
 	 * save类消息(save#classFullName#port)
 	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201
+	 * kill类消息(kill#classFullName)
+	 * * * kill#me.zkk.kkapp.ExampleServiceImpl
+	 * check类消息(check#)
+	 * * * check#
 	 */
 	public function receiveMessage() {
 		echo "Server is working now!\n";

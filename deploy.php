@@ -41,10 +41,19 @@ class Deploy {
 	 * @param mixed $classHandler 绑定服务java代码中的创建类的变量类型
 	 * @param mixed $implementClassHandler 绑定服务java代码中的创建类的方法
 	 */
-	private function writeDeployCode($classHandler , $implementClassHandler) {
+	private function writeDeployCode($classHandler, $implementClassHandler) {
+
+		// 部署服务前，先杀掉之前可能已经部署过的此服务，防止重复部署
+		$implClassFullName = $implementClassHandler->getClassFullName();
+		$killResult = sendMessageToServer("kill#$implClassFullName");
+		if($killResult == __FAILED__) {
+			$port = sendMessageToServer("port#");
+		} else {
+			$port = $killResult;
+		}
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
 		$fileName = __FILE_TEMP__ . $className . ".java";
-		$port = sendMessageToServer("port#");
+
 		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
 		$deployCode = fread($readDeployCodeFile, __DEPLOYCODE_CONTEXT_LENGTH__);
 		fclose($readDeployCodeFile);
@@ -60,6 +69,7 @@ class Deploy {
 		$writeDeployCodeFile = fopen($fileName, "w");
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
+
 		if(__FAILED__ !== sendMessageToServer("java#javac $fileName#$port")) {
 			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
 				if(__FAILED__ !== sendMessageToServer("save#"

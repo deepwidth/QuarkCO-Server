@@ -19,9 +19,9 @@ define('__QUARKCO_ROOT_DIR__', dirname(__FILE__));
 define('__DEPLOY_CODE_FILE__', 'var/deployCode.txt');
 
 //程序间返回操作成功码
-define('__SUCCESS__', 0);
+define('__SUCCESS__', "success");
 //程序间返回操作失败码
-define('__FAILED__', -1);
+define('__FAILED__', "fail");
 
 @set_include_path(get_include_path() . PATH_SEPARATOR .
 __QUARKCO_ROOT_DIR__ . '/var');
