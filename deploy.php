@@ -70,13 +70,15 @@ class Deploy {
 		fwrite($writeDeployCodeFile, $deployCode);
 		fclose($writeDeployCodeFile);
 
-		if(__FAILED__ !== sendMessageToServer("java#javac $fileName#$port")) {
+		if(($compileResult = sendMessageToServer("java#javac $fileName#$port")) == __SUCCESS__) {
 			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
 				if(__FAILED__ !== sendMessageToServer("save#"
 				. $implementClassHandler->getClassFullName() . "#" . $port)) {
 					$this->addDeployedClass($implementClassHandler->getClassParamName(), $port);
 				}
 			}
+		} else {
+			exitWithErrorCode('1003', $fileName);
 		}
 	}
 

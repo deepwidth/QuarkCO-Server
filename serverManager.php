@@ -118,6 +118,7 @@ class ServerManager {
 	 */
 	private function javaHandler($javaCommand, $javaCheckPort) {
 		$javaCommandClass = $this->getJavaCommandClass($javaCommand);
+		$javaCommand = changeShellCommand($javaCommand);
 		switch($javaCommandClass) {
 			case 'java':
 				$pid = pcntl_fork();
@@ -139,9 +140,17 @@ class ServerManager {
 				}
 				return __FAILED__;
 			case 'javac':
-				shell_exec($javaCommand);
-				return __SUCCESS__;
+				$result = shell_exec("$javaCommand");
+				if($result == "success") {
+					return __SUCCESS__;
+				}
+				if(__LOG_CLASS__ != 0) {
+					writeLog("编译错误，指令为$javaCommand");
+				}
+				echo "编译失败!\n";
+				return __FAILED__;
 			default:
+
 				if(__LOG_CLASS__ != 0) {
 					writeLog("未知Java命令:$javaCommand");
 				}
@@ -246,7 +255,7 @@ class ServerManager {
 					break;
 				}
 				if(!socket_write($msgsock, $msg, strlen($msg))) {
-					echo "socket_write() failed: reason: " . socket_strerror($msgsock) . "\n";
+					echo "socket_write() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
 				}
 			}
 			socket_close($msgsock);

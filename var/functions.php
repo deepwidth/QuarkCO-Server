@@ -69,7 +69,7 @@ function sendMessageToServer($message) {
         socket_close($socket);
 		return __FAILED__;
 	} else {
-        $out = socket_read($socket, 1024);
+        $out = socket_read($socket, 5096);
         socket_close($socket);
         if(false === $out) {
             return __FAILED__;
@@ -98,7 +98,33 @@ function isManagerWorking() {
  * *1001: 未发现Post请求参数
  * *1002: 服务端未运行
  */
-function exitWithErrorCode($code) {
-    $error = array("error" => $code);
+function exitWithErrorCode($code, $errorContent = "Unknown error") {
+    
+    switch($code) {
+        case '1001':
+            $error = array("errorCode" => $code, "errorContent" => "Post param Not Found!");
+        break;
+        case '1002':
+            $error = array("errorCode" => $code, "errorContent" => "Server is not working!");
+        break;
+        case '1003':
+            $error = array("errorCode" => $code, "errorContent" => $errorContent);
+        break;
+        default:
+            $error = array("errorCode" => $code, "errorContent" => "Unknown error");
+        break;
+    }
     exit(json_encode($error));
+}
+
+/**
+ * 处理shell_exec指令为方便检测执行成功与否的形式
+ * 执行命令成功返回success
+ * 
+ * @param $shellCmd shell指令
+ * @return $shellCmd 处理后的shell指令
+ */
+function changeShellCommand($shellCmd) {
+    $shellCmd = $shellCmd . " >/dev/null 2>&1 && echo success";
+    return $shellCmd;
 }
