@@ -141,7 +141,7 @@ class ServerManager {
 				return __FAILED__;
 			case 'javac':
 				$result = shell_exec("$javaCommand");
-				if($result == "success") {
+				if($result == "success\n") {
 					return __SUCCESS__;
 				}
 				if(__LOG_CLASS__ != 0) {
