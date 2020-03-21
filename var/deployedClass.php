@@ -15,6 +15,7 @@ class DeployedClass {
     private $classFullName;
     private $port;
     private $pid;
+    private $toolFileName;
 
     public function setClassFullName($classFullName) {
         $this->classFullName = $classFullName;
@@ -38,6 +39,14 @@ class DeployedClass {
 
     public function getPid() {
         return $this->pid;
+    }
+
+    public function setToolFileName($toolFile) {
+        $this->toolFileName = $toolFile;
+    }
+
+    public function getToolFileName() {
+        return $this->toolFileName;
     }
 }
 ?>

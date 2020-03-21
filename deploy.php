@@ -52,7 +52,8 @@ class Deploy {
 			$port = $killResult;
 		}
 		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
-		$fileName = __FILE_TEMP__ . $className . ".java";
+		$fileNameWithoutExt = __FILE_TEMP__ . $className;
+		$fileName = $fileNameWithoutExt . ".java";
 
 		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
 		$deployCode = fread($readDeployCodeFile, __DEPLOYCODE_CONTEXT_LENGTH__);
@@ -73,7 +74,7 @@ class Deploy {
 		if(($compileResult = sendMessageToServer("java#javac $fileName#$port")) == __SUCCESS__) {
 			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
 				if(__FAILED__ !== sendMessageToServer("save#"
-				. $implementClassHandler->getClassFullName() . "#" . $port)) {
+				. $implementClassHandler->getClassFullName() . "#" . "$port#$fileNameWithoutExt")) {
 					$this->addDeployedClass($implementClassHandler->getClassParamName(), $port);
 				}
 			}

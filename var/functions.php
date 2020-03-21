@@ -97,6 +97,7 @@ function isManagerWorking() {
  * 错误码类别：
  * *1001: 未发现Post请求参数
  * *1002: 服务端未运行
+ * *1003: 编译失败
  */
 function exitWithErrorCode($code, $errorContent = "Unknown error") {
     

@@ -176,6 +176,7 @@ class ServerManager {
 		$pid = shell_exec("lsof -i:$commandArray[2] | grep '(LISTEN)' | awk -F' ' {'print $2'}");
 		$pid = substr($pid, 0, strlen($pid) - 1);
 		$deployedClass->setPid($pid);
+		$deployedClass->setToolFileName($commandArray[3]);
 		$this->addDeployedClasses($deployedClass);
 		if(__LOG_CLASS__ != 0) {
 			writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
@@ -197,8 +198,25 @@ class ServerManager {
 			return __FAILED__;
 		} else {
 			$pid = $deployedClass->getPid();
-			shell_exec("kill $pid");
+			if("success\n" == shell_exec(changeShellCommand("kill $pid"))) {
+				if("success\n" != 
+					shell_exec(changeShellCommand("rm -f " 
+					. $deployedClass->getToolFileName() . ".*"))) {
+						if(__LOG_CLASS__ != 0) {
+							writeLog($deployedClass->getToolFileName() . "文件删除失败\n");
+						}
+						echo "文件删除失败\n";
+						return __FAILED__;
+					}
+			} else {
+				echo "$classFullName 进程关闭失败\n";
+				if(__LOG_CLASS__ != 0) {
+					writeLog("$classFullName 进程关闭失败\n");
+				}
+				return __FAILED__;
+			}
 			$this->deleteDeployedClass($classFullName);
+			echo "$classFullName 已被关闭\n";
 			if(__LOG_CLASS__ != 0) {
 				writeLog("$classFullName 已被关闭\n");
 			}
@@ -214,8 +232,8 @@ class ServerManager {
 	 * * * java#java ExampleService_ExampleServiceImpl#2201
 	 * port类消息(port#)
 	 * * * port#
-	 * save类消息(save#classFullName#port)
-	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201
+	 * save类消息(save#classFullName#port#toolFileName)
+	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201#ExampleService_ExampleServiceImpl.java
 	 * kill类消息(kill#classFullName)
 	 * * * kill#me.zkk.kkapp.ExampleServiceImpl
 	 * check类消息(check#)
