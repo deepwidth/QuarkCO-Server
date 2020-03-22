@@ -50,6 +50,9 @@ require_once "functions.php";
 // 默认为 quarkco
 define("__POST_PARAM_NAME__", "quarkco");
 
+// POST请求终止服务的参数
+define("__POST_STOP_PARAM__", "stop");
+
 //模块间通信端口,更改此项设置后重启管理模块(serverManager.php)生效
 //默认为2200
 $communicatePort = 2200;

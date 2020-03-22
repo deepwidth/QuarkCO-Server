@@ -138,3 +138,13 @@ function changeShellCommand($shellCmd) {
 function makeRandStr() {
     return md5(uniqid(microtime(true),true));
 }
+
+/**
+ * 带退出码退出
+ * 
+ * @param 
+ */
+function exitWithJsonResult($result) {
+    $returnResult = array("result" => $result);
+    exit(json_encode($returnResult));
+}

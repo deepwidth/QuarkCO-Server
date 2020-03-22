@@ -22,7 +22,10 @@ class ServerManager {
 	private $socket;
 
 	private $deployedClasses = array();	//正在运行的java远程调用服务
-	private function __construct() {}
+	private $deployedClassesServiceLabelArray = array();
+	private function __construct() {
+		$this->initSetting();
+	}
 
 	private function __clone() {}
 
@@ -68,8 +71,13 @@ class ServerManager {
 		$this->deployedClasses[$deployedClass->getClassFullName()] = $deployedClass;
 	}
 
+	private function addDeployedClassServiceLabel($classFullName, $serviceLabel) {
+		$this->deployedClassesServiceLabelArray[$classFullName] = $serviceLabel;
+	}
+
 	private function deleteDeployedClass($classFullName) {
 		unset($this->deployedClasses[$classFullName]);
+		unset($this->deployedClassesServiceLabelArray[$classFullName]);
 	}
 
 	/**
@@ -175,6 +183,7 @@ class ServerManager {
 		$deployedClass->setToolFileName($commandArray[3]);
 		$deployedClass->setServiceLabel($commandArray[4]);
 		$this->addDeployedClasses($deployedClass);
+		$this->addDeployedClassServiceLabel($commandArray[1], $commandArray[4]);
 		if(__LOG_CLASS__ != 0) {
 			writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
 		}
@@ -220,6 +229,27 @@ class ServerManager {
 			return $deployedClass->getPort();
 		}
 	}
+	/**
+	 * 关闭一个服务标识码所
+	 * 
+	 * @access private
+	 * @param $serviceLabel 服务的标识码
+	 * @return __SUCCESS__/__FAILED__
+	 */
+	private function stopService($serviceLabel) {
+		$index = array_search($serviceLabel, $this->deployedClassesServiceLabelArray);
+		if(false == $index) {
+			echo "未发现 $serviceLabel 服务\n";
+			return __FAILED__;
+		}
+		while(false != $index) {
+			if(__FAILED__ != $this->killService($index)) {
+				echo "$serviceLabel - $index 已关闭\n";
+			}
+			$index = array_search($serviceLabel, $this->deployedClassesServiceLabelArray);
+		}
+		return __SUCCESS__;
+	}
 
 	/**
 	 * 消息接受方法
@@ -233,6 +263,8 @@ class ServerManager {
 	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201#ExampleService_ExampleServiceImpl#(32位标识码)
 	 * kill类消息(kill#classFullName)
 	 * * * kill#me.zkk.kkapp.ExampleServiceImpl
+	 * stop类消息(stop#serviceLabel)
+	 * * * stop#bfb90415a78258cdf28e960fb2de0907
 	 * check类消息(check#)
 	 * * * check#
 	 */
@@ -262,6 +294,9 @@ class ServerManager {
 					case 'kill':
 						$msg = $this->killService($msgArray[1]);
 					break;
+					case 'stop':
+						$msg = $this->stopService($msgArray[1]);
+					break;
 					case 'check':
 						$msg = "OK";
 					break;
@@ -279,5 +314,6 @@ class ServerManager {
 }
 
 $server = ServerManager::getInstance();
-$server->initSetting();
 $server->receiveMessage();
+
+?>
