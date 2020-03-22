@@ -7,10 +7,6 @@
  * Website: https://github.com/twoFiveOneTen/QuarkCO-Server
  */
 
-/**
- * 增加服务是否成功杀掉的判断；
- */
-
 require_once "config.php";
 
 /**
@@ -177,6 +173,7 @@ class ServerManager {
 		$pid = substr($pid, 0, strlen($pid) - 1);
 		$deployedClass->setPid($pid);
 		$deployedClass->setToolFileName($commandArray[3]);
+		$deployedClass->setServiceLabel($commandArray[4]);
 		$this->addDeployedClasses($deployedClass);
 		if(__LOG_CLASS__ != 0) {
 			writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
@@ -232,8 +229,8 @@ class ServerManager {
 	 * * * java#java ExampleService_ExampleServiceImpl#2201
 	 * port类消息(port#)
 	 * * * port#
-	 * save类消息(save#classFullName#port#toolFileName)
-	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201#ExampleService_ExampleServiceImpl.java
+	 * save类消息(save#classFullName#port#toolFileName#serviceLabel)
+	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201#ExampleService_ExampleServiceImpl#(32位标识码)
 	 * kill类消息(kill#classFullName)
 	 * * * kill#me.zkk.kkapp.ExampleServiceImpl
 	 * check类消息(check#)
@@ -248,7 +245,7 @@ class ServerManager {
 				break;
 			}
 			
-			while($out = socket_read($msgsock, 100)) {
+			while($out = socket_read($msgsock, 1024)) {
 				echo "接受命令：" . $out . "\n";
 				//接收服务器回传信息成功
 				$msgArray = explode('#', $out);

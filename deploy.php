@@ -22,8 +22,12 @@ class Deploy {
 	private $deployClasses = array();
 	private $deployResult = array();
 	private $importCode = "";	//部署代码的导包代码
+	private $serviceLabel;
 
-	private function __construct() {}
+	private function __construct() {
+		$this->serviceLabel = makeRandStr();
+		$this->addDeployedClass("serviceLabel", $this->serviceLabel);
+	}
 
 	private function __clone() {}
 
@@ -74,7 +78,7 @@ class Deploy {
 		if(($compileResult = sendMessageToServer("java#javac $fileName#$port")) == __SUCCESS__) {
 			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
 				if(__FAILED__ !== sendMessageToServer("save#"
-				. $implementClassHandler->getClassFullName() . "#" . "$port#$fileNameWithoutExt")) {
+				. $implementClassHandler->getClassFullName() . "#" . "$port#$fileNameWithoutExt#" . $this->serviceLabel)) {
 					$this->addDeployedClass($implementClassHandler->getClassParamName(), $port);
 				}
 			}

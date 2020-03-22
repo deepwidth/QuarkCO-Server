@@ -16,6 +16,7 @@ class DeployedClass {
     private $port;
     private $pid;
     private $toolFileName;
+    private $serviceLabel;
 
     public function setClassFullName($classFullName) {
         $this->classFullName = $classFullName;
@@ -47,6 +48,14 @@ class DeployedClass {
 
     public function getToolFileName() {
         return $this->toolFileName;
+    }
+
+    public function setServiceLabel($service) {
+        $this->serviceLabel = $service;
+    }
+
+    public function getServiceLabel() {
+        return $this->serviceLabel;
     }
 }
 ?>
