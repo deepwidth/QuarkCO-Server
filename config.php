@@ -10,6 +10,13 @@
 /**
  * 这是配置文件
  * 更改配置文件后需要重启管理模块(serverManager.php)以生效
+ * 
+ * ========== 注意！！！==========
+ * 服务端需要 Java 环境，并且$CLASSPATH 需要包含以下路径(假设服务端工作目录为XXX)
+ * * XXX/QuarkCO
+ * * XXX/tmp
+ * * XXX/var/sdk
+ * 服务端需要 PHP 运行环境，并且 PHP 需要解禁 shell_exec、chmod 函数，否则无法运行
 */
 
 //QuarkCO工作目录
