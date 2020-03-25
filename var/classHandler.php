@@ -15,7 +15,7 @@ require_once "config.php";
   
 class ClassHandler {
 	
-	private $classFullName;	//类完整名字，包括包名
+	private $classFullName;	//类完整名字，包括包名(me.zkk.kkapp)
 	private $className;	//类名字
 	private $classFilePath;	//文件路径
 	private $classContent;	//类代码内容
@@ -107,7 +107,7 @@ class ClassHandler {
             $word = array();
 		}
 	}
-	//设置此java类导入的包
+	//设置此java类导入的包（只设置已同步的代码）
 	public function setImportedClasses() {
 		$syncResult = CodeSync::getInstance()->getSyncResult();
 		for($index = 0; $index <= count($this->classWords); ++$index) {
@@ -133,8 +133,8 @@ class ClassHandler {
 				++$index;
 				if(array_key_exists($this->classWords[$index], $this->importedClasses)) {
 					array_push($this->importedClasses[$this->classWords[$index]]->implementClassHandler, $this);
+					$this->interfaceClass = $this->importedClasses[$this->classWords[$index]];
 				}
-				$this->interfaceClass = $this->importedClasses[$this->classWords[$index]];
 			}
 
 			if($this->classWords[$index] == "interface") {

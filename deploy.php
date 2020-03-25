@@ -93,12 +93,11 @@ class Deploy {
 		foreach($syncResult as $classFullName => $classHandler) {
 			if($classHandler->isInterface) {
 				foreach($classHandler->getImplementClassHandler() as $key => $implementClassHandler) {
+					$this->setImportCode($classHandler->getClassFullName(), $implementClassHandler->getClassFullName());
 					$this->writeDeployCode($classHandler, $implementClassHandler);
 				}
 			} else if($classHandler->isAbstractClass) {
 				continue;
-			} else if($classHandler->getInterfaceClass() == null){
-				$this->writeDeployCode($classHandler, $classHandler);
 			}
 		}
 	}
@@ -107,10 +106,8 @@ class Deploy {
 		$this->deployClasses = $syncResult;
 	}
 
-	public function setImportCode() {
-		foreach($this->deployClasses as $classFullName => $classHandler) {
-			$this->importCode = $this->importCode . "\nimport $classFullName;";
-		}
+	public function setImportCode($interfaceClassName, $implementClassName) {
+		$this->importCode = "import $interfaceClassName;\nimport $implementClassName;";
 	}
 
 	public function getDeployClasses() {
@@ -128,7 +125,6 @@ class Deploy {
 }
 $deployModule = Deploy::getInstance();
 $deployModule->setDeployClasses(CodeSync::getInstance()->getSyncResult());
-$deployModule->setImportCode();
 $deployModule->deployCode();
 exit(json_encode($deployModule->getDeployResult()));
 ?>
