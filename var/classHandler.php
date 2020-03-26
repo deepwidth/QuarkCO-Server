@@ -83,6 +83,7 @@ class ClassHandler {
 	public function analyzeClassContent() {
 		$classContent = $this->getClassContent();
 		$index = 0;
+		$inImplement = false;	// 当前是否在implement词中
 		for($i = 0; $i < strlen($classContent); ++$i) {
             if($classContent[$i] == '/' && $classContent[1+$i] == '/') {
                 while($classContent[$i] != '\n') {
@@ -104,6 +105,21 @@ class ClassHandler {
             $index = 0;
 			$getted = implode($word);
 			array_push($this->classWords, $getted);
+			while(' ' == $classContent[$i]) {
+				++$i;
+			}
+			if($inImplement) {
+				if(',' != $classContent[$i]) {
+					$inImplement = false;
+					array_push($this->classWords, "implementEnd");
+					--$i;
+				}
+			} else {
+				--$i;
+			}
+			if("implements" == $getted) {
+				$inImplement = true;
+			}
             $word = array();
 		}
 	}
@@ -117,10 +133,18 @@ class ClassHandler {
 				if(array_key_exists($classFullName, $syncResult)) {
 					$this->importedClasses[$syncResult[$classFullName]->getClassName()] = $syncResult[$classFullName];
 				} 
-			} else if($this->classWords[$index] == "implements" || $this->classWords[$index] == "extends") {
+			} else if($this->classWords[$index] == "extends") {
 				++$index;
 				if(array_key_exists($this->classPackage . "." . $this->classWords[$index], $syncResult)) {
 					$this->importedClasses[$this->classWords[$index]] = $syncResult[$this->classPackage . "." . $this->classWords[$index]];
+				}
+			} else if($this->classWords[$index] == "implements"){
+				++$index;
+				while("implementEnd" != $this->classWords[$index]) {
+					if(array_key_exists($this->classPackage . "." . $this->classWords[$index], $syncResult)) {
+						$this->importedClasses[$this->classWords[$index]] = $syncResult[$this->classPackage . "." . $this->classWords[$index]];
+					}
+					++$index;
 				}
 			}
 		}
@@ -131,9 +155,12 @@ class ClassHandler {
 		for($index = 0; $index <= count($this->classWords); ++$index) {
 			if($this->classWords[$index] == "implements") {
 				++$index;
-				if(array_key_exists($this->classWords[$index], $this->importedClasses)) {
-					array_push($this->importedClasses[$this->classWords[$index]]->implementClassHandler, $this);
-					$this->interfaceClass = $this->importedClasses[$this->classWords[$index]];
+				while("implementEnd" != $this->classWords[$index]) {
+					if(array_key_exists($this->classWords[$index], $this->importedClasses)) {
+						array_push($this->importedClasses[$this->classWords[$index]]->implementClassHandler, $this);
+						$this->interfaceClass = $this->importedClasses[$this->classWords[$index]];
+					}
+					++$index;
 				}
 			}
 

@@ -47,23 +47,24 @@ class Deploy {
 	 */
 	private function writeDeployCode($classHandler, $implementClassHandler) {
 
+		$classNamePair = $classHandler->getClassFullName() . "_" . $implementClassHandler->getClassFullName();
+		$classNamePair = str_replace('.', '_', $classNamePair);
+		$fileNameWithoutExt = __FILE_TEMP__ . $classNamePair;
+		$fileName = $fileNameWithoutExt . ".java";
+
 		// 部署服务前，先杀掉之前可能已经部署过的此服务，防止重复部署
-		$implClassFullName = $implementClassHandler->getClassFullName();
-		$killResult = sendMessageToServer("kill#$implClassFullName");
+		$killResult = sendMessageToServer("kill#$classNamePair");
 		if($killResult == __FAILED__) {
 			$port = sendMessageToServer("port#");
 		} else {
 			$port = $killResult;
 		}
-		$className = $classHandler->getClassName() . "_" . $implementClassHandler->getClassName();
-		$fileNameWithoutExt = __FILE_TEMP__ . $className;
-		$fileName = $fileNameWithoutExt . ".java";
 
 		$readDeployCodeFile = fopen(__DEPLOY_CODE_FILE__, "r");
 		$deployCode = fread($readDeployCodeFile, __DEPLOYCODE_CONTEXT_LENGTH__);
 		fclose($readDeployCodeFile);
 		$deployCode = str_replace('?IMPORTCLASSES?', $this->importCode, $deployCode);
-		$deployCode = str_replace('?DEPLOYFILENAME?', $className, $deployCode);
+		$deployCode = str_replace('?DEPLOYFILENAME?', $classNamePair, $deployCode);
 		$deployCode = str_replace('?INTERFACECLASS?', $classHandler->getClassName(), $deployCode);
 		$deployCode = str_replace('?IMPLEMENTCLASS?', $implementClassHandler->getClassName(), $deployCode);
 		$deployCode = str_replace('?PORT?', $port, $deployCode);
@@ -76,10 +77,10 @@ class Deploy {
 		fclose($writeDeployCodeFile);
 
 		if(($compileResult = sendMessageToServer("java#javac $fileName#$port")) == __SUCCESS__) {
-			if(__FAILED__ !== sendMessageToServer("java#java $className#$port")){
+			if(__FAILED__ !== sendMessageToServer("java#java $classNamePair#$port")){
 				if(__FAILED__ !== sendMessageToServer("save#"
-				. $implementClassHandler->getClassFullName() . "#" . "$port#$fileNameWithoutExt#" . $this->serviceLabel)) {
-					$this->addDeployedClass($implementClassHandler->getClassParamName(), $port);
+				. $implementClassHandler->getClassFullName() . "#" . "$port#$classNamePair#" . $this->serviceLabel)) {
+					$this->addDeployedClass($classNamePair, $port);
 				}
 			}
 		} else {

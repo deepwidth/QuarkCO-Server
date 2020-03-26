@@ -67,8 +67,8 @@ class ServerManager {
 		}
 	}
 
-	private function addDeployedClasses($deployedClass) {
-		$this->deployedClasses[$deployedClass->getClassFullName()] = $deployedClass;
+	private function addDeployedClasses($serviceName, $deployedClass) {
+		$this->deployedClasses[$serviceName] = $deployedClass;
 	}
 
 	private function addDeployedClassServiceLabel($classFullName, $serviceLabel) {
@@ -182,8 +182,8 @@ class ServerManager {
 		$deployedClass->setPid($pid);
 		$deployedClass->setToolFileName($commandArray[3]);
 		$deployedClass->setServiceLabel($commandArray[4]);
-		$this->addDeployedClasses($deployedClass);
-		$this->addDeployedClassServiceLabel($commandArray[1], $commandArray[4]);
+		$this->addDeployedClasses($commandArray[3], $deployedClass);
+		$this->addDeployedClassServiceLabel($commandArray[3], $commandArray[4]);
 		if(__LOG_CLASS__ != 0) {
 			writeLog($commandArray[1] . "已部署，端口为$commandArray[2]");
 		}
@@ -194,7 +194,7 @@ class ServerManager {
 	 * 杀掉某个服务
 	 * 
 	 * @access private
-	 * @param string $classFUllName 杀掉服务的java类全名
+	 * @param string $classFUllName 杀掉服务的java服务全名
 	 * @return __FAILED__:失败 string:被释放的端口
 	 * 
 	 */
@@ -260,9 +260,9 @@ class ServerManager {
 	 * port类消息(port#)
 	 * * * port#
 	 * save类消息(save#classFullName#port#toolFileName#serviceLabel)
-	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201#ExampleService_ExampleServiceImpl#(32位标识码)
-	 * kill类消息(kill#classFullName)
-	 * * * kill#me.zkk.kkapp.ExampleServiceImpl
+	 * * * save#me.zkk.kkapp.ExampleServiceImpl#2201#me_zkk_kkapp_ExampleService_me_zkk_kkapp_ExampleServiceImpl#(32位标识码)
+	 * kill类消息(kill#classFullNamePair)
+	 * * * kill#me_zkk_kkapp_ExampleService_me_zkk_kkapp_ExampleServiceImpl
 	 * stop类消息(stop#serviceLabel)
 	 * * * stop#bfb90415a78258cdf28e960fb2de0907
 	 * check类消息(check#)
