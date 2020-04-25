@@ -16,7 +16,7 @@
  * * XXX/QuarkCO
  * * XXX/tmp
  * * XXX/var/sdk
- * 服务端需要 PHP 运行环境，并且 PHP 需要解禁 shell_exec、chmod 函数，否则无法运行
+ * 服务端需要 PHP 运行环境，并且 PHP 需要解禁 shell_exec 函数，否则无法运行
 */
 
 //QuarkCO工作目录
@@ -50,6 +50,27 @@ require_once "deployedClass.php";
 
 //通用功能类
 require_once "functions.php";
+
+// 检测 shell_exec 函数是否解禁
+if(!(is_callable('shell_exec') && false === stripos(ini_get('disable_functions'), 'shell_exec'))) {
+	exit("ERROR:the PHP function shell_exec is needed\nplease remove it from disabled functions in php.ini\n");
+}
+
+// 检测java环境变量配置是否正确
+$classpath = shell_exec('echo $CLASSPATH');
+$paths = explode(':', $classpath);
+if(in_array(__DIR__ . "/QuarkCO", $paths)) {
+	if(in_array(__DIR__ . "/tmp", $paths)) {
+		if(!in_array(__DIR__ . "/var/sdk", $paths)) {
+			exit('ERROR:' . __DIR__ . '/var/sdk is needed in $CLASSPATH of Java' . "\n");
+		}
+	} else {
+		exit('ERROR:' . __DIR__ . '/tmp is needed in $CLASSPATH of Java' . "\n");
+	}
+} else {
+	exit('ERROR:' . __DIR__ . '/QuarkCO is needed in $CLASSPATH of Java' . "\n");
+}
+
 
 //===============个性化服务设置==================
 
