@@ -128,9 +128,13 @@ class ServerManager {
 				$pid = pcntl_fork();
 				$noWDate = time();
 				if(0 == $pid) {
-					shell_exec($javaCommand);
-					if(__LOG_CLASS__ != 0) {
-						writeLog("$javaCommand 已成功部署，端口为$javaCheckPort");
+					$result = shell_exec($javaCommand);
+					if($result == "success\n") {
+						if( __LOG_CLASS__ != 0) {
+							writeLog("$javaCommand 已成功部署，端口为$javaCheckPort");
+						}
+					} else {
+						writeLog("$javaCommand 部署失败");
 					}
 					exit();
 				}
