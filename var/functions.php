@@ -136,7 +136,7 @@ function changeShellCommand($shellCmd) {
  * @return 32位随机字符串
  */
 function makeRandStr() {
-    return md5(uniqid(microtime(true),true));
+    return md5(uniqid(microtime(),true));
 }
 
 /**
